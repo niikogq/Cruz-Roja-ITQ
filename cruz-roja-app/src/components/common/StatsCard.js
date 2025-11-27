@@ -1,5 +1,5 @@
-import Reacts from 'react';
-import { Card, CardConects, Typography } from '@mui/material';
+import React from 'react';
+import { Card, CardContent, Typography } from '@mui/material';
 
 export const StatsCard = React.memo(({
     title,
@@ -12,10 +12,10 @@ export const StatsCard = React.memo(({
         color: '#fff',
         boxShadow: `0 4px 12px ${shadowColor}`
     }}>
-        <CardConects>
+        <CardContent>
             <Typography variant="h3" fontWeight="bold">{value}</Typography>
             <Typography variant="body1" sx={{ mt: 1 }}>{title}</Typography>            
-        </CardConects>
+        </CardContent>
     </Card>
 ));
 
