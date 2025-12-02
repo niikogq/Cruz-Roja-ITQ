@@ -1,13 +1,17 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaHome, FaUserFriends, FaUniversity, FaCommentAlt } from 'react-icons/fa';
+import { FaHome, FaUserFriends, FaUniversity, FaCommentAlt, FaFileAlt } from 'react-icons/fa';
 import logo from '../../assets/logo-cruz-roja.png';
+
+//FaSitemap import react-icons/fa
 
 const menu = [
   { path: '/', label: 'Inicio', icon: <FaHome /> },
   { path: '/voluntarios', label: 'Voluntarios', icon: <FaUserFriends /> },
   { path: '/filiales', label: 'Datos filial', icon: <FaUniversity /> },
   { path: '/sugerencias', label: 'Sugerencias', icon: <FaCommentAlt /> },
+  { path: '/validacion-formularios', label: 'Información Sede', icon: <FaFileAlt /> },
+ // { path: '/filiales-jerarquia', label: 'Jerarquía Filiales', icon: <FaSitemap /> }
  // { path: '/donaciones', label: 'Donaciones', icon: <FaDonate /> },
  // { path: '/emergencias', label: 'Emergencias', icon: <FaExclamationTriangle /> },
  // { path: '/reportes', label: 'Reportes', icon: <FaFileAlt /> },

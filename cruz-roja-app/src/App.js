@@ -12,6 +12,9 @@ const Reportes = lazy(() => import('./pages/Reportes'));
 const Filiales = lazy(() => import('./pages/Filiales'));
 const FilialDetalle = lazy(() => import('./pages/FilialDetalle'));
 const Sugerencias = lazy(() => import('./pages/Sugerencias'));
+const ValidacionFormularios = lazy(() => import('./pages/validacionFormularios'));
+//const FilialesJerarquia = lazy(() => import('./pages/FilialesJerarquia'));
+
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -39,6 +42,8 @@ function App() {
             <Route path="/filiales" element={<Filiales />} />
             <Route path="/filial/:nombre" element={<FilialDetalle />} />
             <Route path="/sugerencias" element={<Sugerencias />} />
+            <Route path="/validacion-formularios" element={<ValidacionFormularios />} />
+            {'<Route path="/filiales-jerarquia" element={<FilialesJerarquia />} />'}
           </Routes>
         </Suspense>
       </MainLayout>

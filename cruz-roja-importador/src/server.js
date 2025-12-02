@@ -6,7 +6,8 @@ const { MongoClient } = require('mongodb');
 const filialesTotalsRouter = require('./Routes/filialesTotals');
 const voluntariosRouter = require('./Routes/voluntarios');
 const filialesRouter = require('./Routes/filiales');
-
+const validacionRouter = require('./Routes/validacionFormularios');
+//const filialesJerarquicas = require('./Routes/filialesJerarquicas');
 
 const app = express();
 
@@ -25,6 +26,8 @@ async function main() {
   app.use('/api/filialesTotals', filialesTotalsRouter);
   app.use('/api/voluntarios', voluntariosRouter);
   app.use('/api/filiales', filialesRouter);
+  app.use('/api/validacionFormularios', validacionRouter);
+  //app.use('/api/filialesJerarquicas', filialesJerarquicas);
 
   const PORT = 3001;
   app.listen(PORT, () => {

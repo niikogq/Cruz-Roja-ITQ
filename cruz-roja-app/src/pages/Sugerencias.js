@@ -202,8 +202,8 @@ export default function Sugerencias() {
   };
 
   return (
-    <div style={{ width: '90%', margin: 'auto', background: '#fff', padding: 2 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+    <div style={{ width: '90%', margin: 'auto', background: '#f8f9fa', padding: 2 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={1} mt={0}>
         <h2 style={{ marginBottom: 18, color: '#9c1821' }}>Sugerencias por Filial</h2>
         <Button
           variant="contained"
@@ -228,7 +228,7 @@ export default function Sugerencias() {
           onProcessRowUpdateError={handleProcessRowUpdateError}
           experimentalFeatures={{ newEditingApi: true }}
           sx={{
-            background: '#fff',
+            background: '##f8f9fa',
             '& .MuiDataGrid-columnHeaders': {
               backgroundColor: '#c54646',
               color: '#000000ff',

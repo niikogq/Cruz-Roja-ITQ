@@ -11,6 +11,10 @@ export default function Inicio() {
   const [totalFiliales, setTotalFiliales] = useState(0);
   const [voluntariosPorFilial, setVoluntariosPorFilial] = useState([]);
   const [promedioEdad, setPromedioEdad] = useState(0);
+  // NUEVO: Estados para género
+  const [hombres, setHombres] = useState(0);
+  const [mujeres, setMujeres] = useState(0);
+  const [otros, setOtros] = useState(0);
 
   useEffect(() => {
     // Cargar voluntarios y filiales
@@ -27,6 +31,20 @@ export default function Inicio() {
       setLlamada(nLlamada);
       setTotal(voluntarios.length);
       setTotalFiliales(filiales.length);
+
+      // NUEVO: Conteo de género
+      const generoCount = { 'M': 0, 'F': 0, 'Otro': 0 };
+      voluntarios.forEach(v => {
+        const genero = v['Género'] || v.Género;
+        if (generoCount[genero] !== undefined) {
+          generoCount[genero]++;
+        } else {
+          generoCount['Otro']++;
+        }
+      });
+      setHombres(generoCount['M']);
+      setMujeres(generoCount['F']);
+      setOtros(generoCount['Otro']);
 
       // Contar voluntarios por filial (top 10)
       const filialCount = {};
@@ -59,6 +77,19 @@ export default function Inicio() {
         data: [activos, llamada],
         backgroundColor: ['#38b000', '#f8c102'],
         borderWidth: 2,
+        borderColor: '#fff'
+      },
+    ],
+  };
+
+  // NUEVO: Gráfico de género
+  const generoData = {
+    labels: ['Mujeres', 'Hombres', 'Otros'],
+    datasets: [
+      {
+        data: [mujeres, hombres, otros],
+        backgroundColor: ['#ff6b9d', '#4ecdc4', '#ffe66d'],
+        borderWidth: 3,
         borderColor: '#fff'
       },
     ],
@@ -148,10 +179,10 @@ export default function Inicio() {
         </div>
       </div>
 
-      {/* Gráficos */}
+      {/* Gráficos - AHORA 3 GRÁFICOS */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
         gap: 24
       }}>
         {/* Gráfico de dona: Activos vs Llamada */}
@@ -166,8 +197,8 @@ export default function Inicio() {
           </h3>
           <div style={{ 
             width: '100%', 
-            maxWidth: 300, 
-            height: 300, 
+            maxWidth: 280, 
+            height: 280, 
             margin: '0 auto',
             display: 'flex',
             alignItems: 'center',
@@ -201,6 +232,61 @@ export default function Inicio() {
           </div>
         </div>
 
+        {/* NUEVO: Gráfico de género */}
+        <div style={{
+          background: '#fff',
+          padding: 32,
+          borderRadius: 16,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
+        }}>
+          <h3 style={{ color: '#9c1821', marginBottom: 20, fontSize: '1.3rem' }}>
+            Distribución por Género
+          </h3>
+          <div style={{ 
+            width: '100%', 
+            maxWidth: 280, 
+            height: 280, 
+            margin: '0 auto',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Doughnut data={generoData} />
+          </div>
+          <div style={{
+            display: 'flex',
+            gap: 24,
+            marginTop: 24,
+            fontSize: 16,
+            fontWeight: 500,
+            justifyContent: 'center',
+            color: '#333',
+            flexWrap: 'wrap'
+          }}>
+            <span>
+              <span style={{
+                display: 'inline-block', width: 16, height: 10,
+                background: '#ff6b9d', borderRadius: 4, marginRight: 8, verticalAlign: 'middle'
+              }} />
+              Mujeres: {mujeres}
+            </span>
+            <span>
+              <span style={{
+                display: 'inline-block', width: 16, height: 10,
+                background: '#4ecdc4', borderRadius: 4, marginRight: 8, verticalAlign: 'middle'
+              }} />
+              Hombres: {hombres}
+            </span>
+            <span>
+              <span style={{
+                display: 'inline-block', width: 16, height: 10,
+                background: '#ffe66d', borderRadius: 4, marginRight: 8, verticalAlign: 'middle'
+              }} />
+              Otros: {otros}
+            </span>
+          </div>
+        </div>
+
         {/* Gráfico de barras: Top 10 Filiales */}
         <div style={{
           background: '#fff',
@@ -217,7 +303,7 @@ export default function Inicio() {
         </div>
       </div>
 
-      {/* Estadísticas adicionales */}
+      {/* Estadísticas adicionales - SIN CAMBIOS */}
       <div style={{
         background: '#fff',
         padding: 32,
