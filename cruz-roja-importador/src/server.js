@@ -7,6 +7,9 @@ const filialesTotalsRouter = require('./Routes/filialesTotals');
 const voluntariosRouter = require('./Routes/voluntarios');
 const filialesRouter = require('./Routes/filiales');
 const validacionRouter = require('./Routes/validacionFormularios');
+const actualizarEdadesRouter = require('./Routes/actualizarEdades');
+
+
 //const filialesJerarquicas = require('./Routes/filialesJerarquicas');
 
 const app = express();
@@ -27,6 +30,8 @@ async function main() {
   app.use('/api/voluntarios', voluntariosRouter);
   app.use('/api/filiales', filialesRouter);
   app.use('/api/validacionFormularios', validacionRouter);
+  app.use('/api/actualizarEdades', actualizarEdadesRouter);
+  app.use('/api/exportarGoogleWorkspace', require('./Routes/exportarGoogleWorkspace'));
   //app.use('/api/filialesJerarquicas', filialesJerarquicas);
 
   const PORT = 3001;

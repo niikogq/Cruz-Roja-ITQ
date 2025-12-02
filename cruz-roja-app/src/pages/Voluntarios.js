@@ -11,13 +11,16 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Typography from '@mui/material/Typography';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const CALIDAD_OPTIONS = ["Activo", "Llamada"];
 const GENERO_OPTIONS = ["F", "M", "Otro"];
 
 function excelDateToJSDate(serial) {
   const utc_days = Math.floor(serial - 25569);
-  const utc_value = (utc_days + 1) * 86400;                                      
+  const utc_value = (utc_days + 1) * 86400;                  
   const date_info = new Date(utc_value * 1000);
   const fractional_day = serial - Math.floor(serial) + 0.0000001;
   let total_seconds = Math.floor(86400 * fractional_day);
@@ -35,9 +38,12 @@ export default function Voluntarios() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
-  const [updatingGeneroId, setUpdatingGeneroId] = useState(null); // NUEVO
+  const [updatingGeneroId, setUpdatingGeneroId] = useState(null);
   const [selectedVoluntario, setSelectedVoluntario] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  // NUEVOS ESTADOS
+  const [updatingEdades, setUpdatingEdades] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
 
   useEffect(() => {
     fetch('http://localhost:3001/api/voluntarios')
@@ -56,6 +62,39 @@ export default function Voluntarios() {
         setLoading(false);
       });
   }, []);
+
+  // NUEVA FUNCIÓN: Actualizar edades masivamente
+  const handleActualizarEdades = async () => {
+    setUpdatingEdades(true);
+    setSnackbar({ open: false, message: '', severity: 'info' });
+    try {
+      const response = await fetch('http://localhost:3001/api/actualizarEdades', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const result = await response.json();
+      
+      setSnackbar({
+        open: true,
+        message: result.mensaje || 'Actualización completada',
+        severity: response.ok ? 'success' : 'error'
+      });
+      
+      // Recargar voluntarios para mostrar edades actualizadas
+      if (response.ok) {
+        setTimeout(() => window.location.reload(), 1500);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setSnackbar({
+        open: true,
+        message: 'Error al actualizar edades. Verifica que el backend esté corriendo.',
+        severity: 'error'
+      });
+    } finally {
+      setUpdatingEdades(false);
+    }
+  };
 
   const handleCalidadChange = (id, newValue) => {
     setUpdatingId(id);
@@ -86,7 +125,6 @@ export default function Voluntarios() {
       });
   };
 
-  // NUEVO: Maneja el cambio de género
   const handleGeneroChange = (id, newValue) => {
     setUpdatingGeneroId(id);
     const row = rows.find(r => r.id === id);
@@ -127,8 +165,13 @@ export default function Voluntarios() {
   };
 
   const columns = [
-    { field: 'id', headerName: 'ID', width: 52   },
-    { field: 'acciones', headerName: '', width: 60, sortable: false, filterable: false,
+    { field: 'id', headerName: 'ID', width: 52 },
+    { 
+      field: 'acciones', 
+      headerName: '', 
+      width: 60, 
+      sortable: false, 
+      filterable: false,
       renderCell: (params) => (
         <Button
           size="small"
@@ -149,7 +192,10 @@ export default function Voluntarios() {
       )
     },
     { field: 'Filial', headerName: 'Filial', width: 120 },
-    { field: 'Calidad de voluntario', headerName: 'Calidad de voluntario', width: 180,
+    { 
+      field: 'Calidad de voluntario', 
+      headerName: 'Calidad de voluntario', 
+      width: 180,
       renderCell: (params) => {
         const { id, value } = params;
         if (updatingId === id) return <CircularProgress size={20} />;
@@ -172,14 +218,20 @@ export default function Voluntarios() {
     { field: 'Nombres voluntario', headerName: 'Nombres voluntario', width: 150 },
     { field: 'Apellidos voluntarios', headerName: 'Apellidos voluntarios', width: 170 },
     { field: 'RUT', headerName: 'RUT', width: 130 },
-    { field: 'Fecha de ingreso', headerName: 'Fecha de ingreso', width: 150, 
+    { 
+      field: 'Fecha de ingreso', 
+      headerName: 'Fecha de ingreso', 
+      width: 150, 
       renderCell: (params) => {
         if (!params.value) return '';
         const date = excelDateToJSDate(params.value);
         return date.toLocaleDateString('es-CL');
       }
     },
-    { field: 'Fecha nacimiento', headerName: 'Fecha nacimiento', width: 150,
+    { 
+      field: 'Fecha nacimiento', 
+      headerName: 'Fecha nacimiento', 
+      width: 150,
       renderCell: (params) => {
         if (!params.value) return '';
         const date = excelDateToJSDate(params.value);
@@ -191,7 +243,16 @@ export default function Voluntarios() {
     { field: 'Telefono', headerName: 'Teléfono', width: 130 },
     { field: 'Cargo', headerName: 'Cargo', width: 120 },
     { field: 'Edad', headerName: 'Edad', width: 90 },
-    { field: 'Edad de ingreso a CRC', headerName: 'Edad ingreso CRC', width: 160 },
+    { field: 'Cargo', headerName: 'Cargo', width: 120 },
+    { 
+      field: 'Edad de ingreso a CRC', 
+      headerName: 'Edad ingreso CRC', 
+      width: 160,
+      renderCell: (params) => {
+        const edadIngreso = params.value;
+        return edadIngreso ? Math.round(edadIngreso).toString() : 'N/A';
+      }
+    },    
     { field: 'Antigüedad', headerName: 'Antigüedad', width: 120 },
     { 
       field: 'Género',
@@ -221,6 +282,31 @@ export default function Voluntarios() {
 
   return (
     <div>
+      {/* NUEVO: BOTÓN ACTUALIZAR EDADES */}
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end', pr: 2 }}>
+        <Button
+          variant="contained"
+          startIcon={<RefreshIcon />}
+          onClick={handleActualizarEdades}
+          disabled={updatingEdades}
+          sx={{
+            backgroundColor: '#9c1821',
+            '&:hover': { backgroundColor: '#7a1419' },
+            boxShadow: '0 4px 12px rgba(156, 24, 33, 0.3)'
+          }}
+        >
+          {updatingEdades ? (
+            <>
+              <CircularProgress size={20} sx={{ mr: 1, color: 'white' }} />
+              Actualizando...
+            </>
+          ) : (
+            'Actualizar Edades y Antigüedad'
+          )}
+        </Button>
+      </Box>
+
+      {/* DataGrid */}
       <Box
         sx={{
           height: 490,
@@ -243,6 +329,22 @@ export default function Voluntarios() {
           getRowId={(row) => row.id}
         />
       </Box>
+
+      {/* Snackbar para feedback */}
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={5000} 
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      >
+        <Alert 
+          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
 
       {/* Modal de detalles del voluntario */}
       <Dialog
