@@ -31,7 +31,7 @@ async function main() {
   app.use('/api/filiales', filialesRouter);
   app.use('/api/validacionFormularios', validacionRouter);
   app.use('/api/actualizarEdades', actualizarEdadesRouter);
-  app.use('/api/exportarGoogleWorkspace', require('./Routes/exportarGoogleWorkspace'));
+  //app.use('/api/exportarGoogleWorkspace', require('./Routes/exportarGoogleWorkspace'));
   //app.use('/api/filialesJerarquicas', filialesJerarquicas);
 
   const PORT = 3001;
