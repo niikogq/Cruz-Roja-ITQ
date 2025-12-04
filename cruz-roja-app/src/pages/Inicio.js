@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Doughnut, Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
+import { Box, Typography } from '@mui/material';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -17,13 +18,11 @@ export default function Inicio() {
   const [otros, setOtros] = useState(0);
 
   useEffect(() => {
-    // Cargar voluntarios y filiales
     Promise.all([
       fetch('http://localhost:3001/api/voluntarios').then(res => res.json()),
       fetch('http://localhost:3001/api/filiales').then(res => res.json())
     ])
     .then(([voluntarios, filiales]) => {
-      // Conteo de activos y llamada
       const nActivos = voluntarios.filter(v => v["Calidad de voluntario"] === 'Activo').length;
       const nLlamada = voluntarios.filter(v => v["Calidad de voluntario"] === 'Llamada').length;
 
@@ -32,7 +31,6 @@ export default function Inicio() {
       setTotal(voluntarios.length);
       setTotalFiliales(filiales.length);
 
-      // NUEVO: Conteo de género
       const generoCount = { 'M': 0, 'F': 0, 'Otro': 0 };
       voluntarios.forEach(v => {
         const genero = v['Género'] || v.Género;
@@ -46,7 +44,6 @@ export default function Inicio() {
       setMujeres(generoCount['F']);
       setOtros(generoCount['Otro']);
 
-      // Contar voluntarios por filial (top 10)
       const filialCount = {};
       voluntarios.forEach(v => {
         const filial = v.Filial || 'Sin filial';
@@ -60,7 +57,6 @@ export default function Inicio() {
 
       setVoluntariosPorFilial(top10);
 
-      // Calcular promedio de edad
       const edades = voluntarios.filter(v => v.Edad).map(v => v.Edad);
       const promedio = edades.length > 0 
         ? Math.round(edades.reduce((a, b) => a + b, 0) / edades.length) 
@@ -82,7 +78,6 @@ export default function Inicio() {
     ],
   };
 
-  // NUEVO: Gráfico de género
   const generoData = {
     labels: ['Mujeres', 'Hombres', 'Otros'],
     datasets: [
@@ -126,218 +121,171 @@ export default function Inicio() {
   };
 
   return (
-    <div style={{ padding: '32px', maxWidth: 1400, margin: '0 auto' }}>
+    <Box sx={{ 
+      p: { xs: 2, sm: 4 }, 
+      maxWidth: 1400, 
+      mx: 'auto' 
+    }}>
       {/* Tarjetas de estadísticas */}
-      <div style={{
+      <Box sx={{ 
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: 20,
-        marginBottom: 40
+        gridTemplateColumns: { xs: '1fr', sm: 'repeat(auto-fit, minmax(200px, 1fr))' },
+        gap: { xs: 1.5, sm: 2 },
+        mb: { xs: 4, sm: 5 }
       }}>
-        <div style={{
+        <Box sx={{ 
           background: 'linear-gradient(135deg, #9c1821 0%, #c54646 100%)',
           color: '#fff',
-          padding: 24,
-          borderRadius: 12,
+          p: { xs: 2.5, sm: 3 },
+          borderRadius: 2,
           boxShadow: '0 4px 12px rgba(156, 24, 33, 0.3)'
         }}>
-          <div style={{ fontSize: 14, opacity: 0.9, marginBottom: 8 }}>Total Voluntarios</div>
-          <div style={{ fontSize: 36, fontWeight: 700 }}>{total}</div>
-        </div>
+          <Typography sx={{ fontSize: { xs: 12, sm: 14 }, opacity: 0.9, mb: 1 }}>Total Voluntarios</Typography>
+          <Typography sx={{ fontSize: { xs: 28, sm: 36 }, fontWeight: 700 }}>{total}</Typography>
+        </Box>
 
-        <div style={{
+        <Box sx={{ 
           background: 'linear-gradient(135deg, #38b000 0%, #4caf50 100%)',
           color: '#fff',
-          padding: 24,
-          borderRadius: 12,
+          p: { xs: 2.5, sm: 3 },
+          borderRadius: 2,
           boxShadow: '0 4px 12px rgba(56, 176, 0, 0.3)'
         }}>
-          <div style={{ fontSize: 14, opacity: 0.9, marginBottom: 8 }}>Voluntarios Activos</div>
-          <div style={{ fontSize: 36, fontWeight: 700 }}>{activos}</div>
-        </div>
+          <Typography sx={{ fontSize: { xs: 12, sm: 14 }, opacity: 0.9, mb: 1 }}>Voluntarios Activos</Typography>
+          <Typography sx={{ fontSize: { xs: 28, sm: 36 }, fontWeight: 700 }}>{activos}</Typography>
+        </Box>
 
-        <div style={{
+        <Box sx={{ 
           background: 'linear-gradient(135deg, #f8c102 0%, #ffc107 100%)',
           color: '#fff',
-          padding: 24,
-          borderRadius: 12,
+          p: { xs: 2.5, sm: 3 },
+          borderRadius: 2,
           boxShadow: '0 4px 12px rgba(248, 193, 2, 0.3)'
         }}>
-          <div style={{ fontSize: 14, opacity: 0.9, marginBottom: 8 }}>Voluntarios de Llamada</div>
-          <div style={{ fontSize: 36, fontWeight: 700 }}>{llamada}</div>
-        </div>
+          <Typography sx={{ fontSize: { xs: 12, sm: 14 }, opacity: 0.9, mb: 1 }}>Voluntarios de Llamada</Typography>
+          <Typography sx={{ fontSize: { xs: 28, sm: 36 }, fontWeight: 700 }}>{llamada}</Typography>
+        </Box>
 
-        <div style={{
+        <Box sx={{ 
           background: 'linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)',
           color: '#fff',
-          padding: 24,
-          borderRadius: 12,
+          p: { xs: 2.5, sm: 3 },
+          borderRadius: 2,
           boxShadow: '0 4px 12px rgba(25, 118, 210, 0.3)'
         }}>
-          <div style={{ fontSize: 14, opacity: 0.9, marginBottom: 8 }}>Total Filiales</div>
-          <div style={{ fontSize: 36, fontWeight: 700 }}>{totalFiliales}</div>
-        </div>
-      </div>
+          <Typography sx={{ fontSize: { xs: 12, sm: 14 }, opacity: 0.9, mb: 1 }}>Total Filiales</Typography>
+          <Typography sx={{ fontSize: { xs: 28, sm: 36 }, fontWeight: 700 }}>{totalFiliales}</Typography>
+        </Box>
+      </Box>
 
-      {/* Gráficos - AHORA 3 GRÁFICOS */}
-      <div style={{
+      {/* Gráficos */}
+      <Box sx={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-        gap: 24
+        gridTemplateColumns: { xs: '1fr', sm: 'repeat(auto-fit, minmax(320px, 1fr))' },
+        gap: 3,
+        mb: 5
       }}>
-        {/* Gráfico de dona: Activos vs Llamada */}
-        <div style={{
+        <Box sx={{
           background: '#fff',
-          padding: 32,
-          borderRadius: 16,
+          p: 4,
+          borderRadius: 3,
           boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
         }}>
-          <h3 style={{ color: '#9c1821', marginBottom: 20, fontSize: '1.3rem' }}>
+          <Typography sx={{ color: '#9c1821', mb: 3, fontSize: { xs: '1rem', sm: '1.3rem' } }}>
             Distribución de Voluntarios
-          </h3>
-          <div style={{ 
-            width: '100%', 
-            maxWidth: 280, 
-            height: 280, 
-            margin: '0 auto',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
+          </Typography>
+          <Box sx={{ maxWidth: 280, height: 280, mx: 'auto' }}>
             <Doughnut data={doughnutData} />
-          </div>
-          <div style={{
-            display: 'flex',
-            gap: 32,
-            marginTop: 24,
-            fontSize: 16,
-            fontWeight: 500,
-            justifyContent: 'center',
-            color: '#333'
-          }}>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 3, mt: 3, fontSize: 16, fontWeight: 500, justifyContent: 'center', color: '#333', flexWrap: 'wrap' }}>
             <span>
-              <span style={{
-                display: 'inline-block', width: 16, height: 10,
-                background: '#38b000', borderRadius: 4, marginRight: 8, verticalAlign: 'middle'
-              }} />
+              <Box component="span" sx={{ display: 'inline-block', width: 16, height: 10, background: '#38b000', borderRadius: 4, mr: 1, verticalAlign: 'middle' }} />
               Activos: {activos}
             </span>
             <span>
-              <span style={{
-                display: 'inline-block', width: 16, height: 10,
-                background: '#f8c102', borderRadius: 4, marginRight: 8, verticalAlign: 'middle'
-              }} />
+              <Box component="span" sx={{ display: 'inline-block', width: 16, height: 10, background: '#f8c102', borderRadius: 4, mr: 1, verticalAlign: 'middle' }} />
               Llamada: {llamada}
             </span>
-          </div>
-        </div>
+          </Box>
+        </Box>
 
-        {/* NUEVO: Gráfico de género */}
-        <div style={{
+        <Box sx={{
           background: '#fff',
-          padding: 32,
-          borderRadius: 16,
+          p: 4,
+          borderRadius: 3,
           boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
         }}>
-          <h3 style={{ color: '#9c1821', marginBottom: 20, fontSize: '1.3rem' }}>
+          <Typography sx={{ color: '#9c1821', mb: 3, fontSize: { xs: '1rem', sm: '1.3rem' } }}>
             Distribución por Género
-          </h3>
-          <div style={{ 
-            width: '100%', 
-            maxWidth: 280, 
-            height: 280, 
-            margin: '0 auto',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}>
+          </Typography>
+          <Box sx={{ maxWidth: 280, height: 280, mx: 'auto' }}>
             <Doughnut data={generoData} />
-          </div>
-          <div style={{
-            display: 'flex',
-            gap: 24,
-            marginTop: 24,
-            fontSize: 16,
-            fontWeight: 500,
-            justifyContent: 'center',
-            color: '#333',
-            flexWrap: 'wrap'
-          }}>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2, mt: 3, fontSize: 16, fontWeight: 500, justifyContent: 'center', color: '#333', flexWrap: 'wrap' }}>
             <span>
-              <span style={{
-                display: 'inline-block', width: 16, height: 10,
-                background: '#ff6b9d', borderRadius: 4, marginRight: 8, verticalAlign: 'middle'
-              }} />
+              <Box component="span" sx={{ display: 'inline-block', width: 16, height: 10, background: '#ff6b9d', borderRadius: 4, mr: 1, verticalAlign: 'middle' }} />
               Mujeres: {mujeres}
             </span>
             <span>
-              <span style={{
-                display: 'inline-block', width: 16, height: 10,
-                background: '#4ecdc4', borderRadius: 4, marginRight: 8, verticalAlign: 'middle'
-              }} />
+              <Box component="span" sx={{ display: 'inline-block', width: 16, height: 10, background: '#4ecdc4', borderRadius: 4, mr: 1, verticalAlign: 'middle' }} />
               Hombres: {hombres}
             </span>
             <span>
-              <span style={{
-                display: 'inline-block', width: 16, height: 10,
-                background: '#ffe66d', borderRadius: 4, marginRight: 8, verticalAlign: 'middle'
-              }} />
+              <Box component="span" sx={{ display: 'inline-block', width: 16, height: 10, background: '#ffe66d', borderRadius: 4, mr: 1, verticalAlign: 'middle' }} />
               Otros: {otros}
             </span>
-          </div>
-        </div>
+          </Box>
+        </Box>
 
-        {/* Gráfico de barras: Top 10 Filiales */}
-        <div style={{
+        <Box sx={{
           background: '#fff',
-          padding: 32,
-          borderRadius: 16,
+          p: 4,
+          borderRadius: 3,
           boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
         }}>
-          <h3 style={{ color: '#9c1821', marginBottom: 20, fontSize: '1.3rem' }}>
+          <Typography sx={{ color: '#9c1821', mb: 3, fontSize: { xs: '1rem', sm: '1.3rem' } }}>
             Top 10 Filiales con Más Voluntarios
-          </h3>
-          <div style={{ height: 300 }}>
+          </Typography>
+          <Box sx={{ height: { xs: 220, sm: 300 } }}>
             <Bar data={barData} options={barOptions} />
-          </div>
-        </div>
-      </div>
+          </Box>
+        </Box>
+      </Box>
 
-      {/* Estadísticas adicionales - SIN CAMBIOS */}
-      <div style={{
+      {/* Estadísticas adicionales */}
+      <Box sx={{
         background: '#fff',
-        padding: 32,
-        borderRadius: 16,
-        boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-        marginTop: 24
+        p: 4,
+        borderRadius: 3,
+        boxShadow: '0 4px 16px rgba(0,0,0,0.1)'
       }}>
-        <h3 style={{ color: '#9c1821', marginBottom: 20, fontSize: '1.3rem' }}>
+        <Typography sx={{ color: '#9c1821', mb: 3, fontSize: { xs: '1rem', sm: '1.3rem' } }}>
           Resumen General
-        </h3>
-        <div style={{
+        </Typography>
+        <Box sx={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: 24,
-          marginTop: 20
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(auto-fit, minmax(200px, 1fr))' },
+          gap: 3,
+          mt: 3
         }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 42, fontWeight: 700, color: '#9c1821' }}>{promedioEdad}</div>
-            <div style={{ fontSize: 14, color: '#666', marginTop: 8 }}>Edad Promedio</div>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 42, fontWeight: 700, color: '#9c1821' }}>
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography sx={{ fontSize: 42, fontWeight: 700, color: '#9c1821' }}>{promedioEdad}</Typography>
+            <Typography sx={{ fontSize: 14, color: '#666', mt: 1 }}>Edad Promedio</Typography>
+          </Box>
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography sx={{ fontSize: 42, fontWeight: 700, color: '#9c1821' }}>
               {total > 0 ? ((activos / total) * 100).toFixed(1) : 0}%
-            </div>
-            <div style={{ fontSize: 14, color: '#666', marginTop: 8 }}>Tasa de Activos</div>
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 42, fontWeight: 700, color: '#9c1821' }}>
+            </Typography>
+            <Typography sx={{ fontSize: 14, color: '#666', mt: 1 }}>Tasa de Activos</Typography>
+          </Box>
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography sx={{ fontSize: 42, fontWeight: 700, color: '#9c1821' }}>
               {totalFiliales > 0 ? Math.round(total / totalFiliales) : 0}
-            </div>
-            <div style={{ fontSize: 14, color: '#666', marginTop: 8 }}>Voluntarios por Filial</div>
-          </div>
-        </div>
-      </div>
-    </div>
+            </Typography>
+            <Typography sx={{ fontSize: 14, color: '#666', mt: 1 }}>Voluntarios por Filial</Typography>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 }

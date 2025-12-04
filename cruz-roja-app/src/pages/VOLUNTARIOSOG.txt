@@ -336,6 +336,7 @@ export default function Voluntarios() {
           disableSelectionOnClick
           getRowId={(row) => row.id}
           suppressCellFocus={true}
+          density="compact"
         />
       </Box>
 
