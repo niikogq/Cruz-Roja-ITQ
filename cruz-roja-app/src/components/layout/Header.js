@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { FaUserCircle } from 'react-icons/fa';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
 
-const HEADER_HEIGHT = 60;
+const HEADER_HEIGHT = 56;
 
 const routeTitles = {
   '/': 'Dashboard',
@@ -14,7 +16,7 @@ const routeTitles = {
   '/reportes': 'Reportes'
 };
 
-const Header = () => {
+const Header = ({ onToggleSidebar }) => {
   const location = useLocation();
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -41,7 +43,7 @@ const Header = () => {
         position: 'fixed',
         top: 0,
         left: 0,
-        right: 0, // ← NUEVO: Asegura que llegue hasta el borde derecho
+        right: 0,
         background: 'linear-gradient(135deg, #9c1821 0%, #c54646 100%)',
         color: '#fff',
         height: HEADER_HEIGHT,
@@ -49,37 +51,47 @@ const Header = () => {
         alignItems: 'center',
         justifyContent: 'space-between',
         boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
-        zIndex: 900,
-        paddingLeft: 270, // ← Espacio para el sidebar
-        paddingRight: 24 // ← Espacio a la derecha
+        zIndex: 1200,      // menor que el Drawer (que usaremos en 1300)
+        padding: '0 24px',
+        gap: 16
       }}
     >
-      {/* Título de la página */}
-      <h1 style={{
-        fontSize: '1.35rem',
-        fontWeight: 700,
-        margin: 0,
-        marginRight: 'auto', // ← Empuja todo a la derecha hacia la derecha
-        letterSpacing: '0.5px'
-      }}>
-        {currentTitle}
-      </h1>
+      {/* Menú + logo + título */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+        <IconButton
+          color="inherit"
+          onClick={onToggleSidebar}
+          size="small"
+          sx={{ color: '#fff' }}
+        >
+          <MenuIcon />
+        </IconButton>
+
+        <h1
+          style={{
+            fontSize: '0.95rem',
+            fontWeight: 700,
+            margin: 0,
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis'
+          }}
+        >
+          {currentTitle}
+        </h1>
+      </div>
 
       {/* Fecha/Hora y Usuario */}
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: 20,
-        flexShrink: 0 // ← No se encoge
-      }}>
-        {/* Fecha y hora */}
-        <div style={{
-          fontSize: '0.82rem',
-          opacity: 0.95,
-          textAlign: 'right',
-          lineHeight: 1.3,
-          whiteSpace: 'nowrap' // ← Evita que se rompa
-        }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexShrink: 0 }}>
+        <div
+          style={{
+            fontSize: '0.82rem',
+            opacity: 0.95,
+            textAlign: 'right',
+            lineHeight: 1.3,
+            whiteSpace: 'nowrap'
+          }}
+        >
           <div style={{ fontWeight: 600, textTransform: 'capitalize' }}>
             {formattedDate}
           </div>
@@ -88,35 +100,26 @@ const Header = () => {
           </div>
         </div>
 
-        {/* Separador */}
-        <div style={{
-          width: 1,
-          height: 30,
-          background: 'rgba(255,255,255,0.3)'
-        }} />
+        <div style={{ width: 1, height: 30, background: 'rgba(255,255,255,0.3)' }} />
 
-        {/* Usuario */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 10,
-          cursor: 'pointer',
-          padding: '6px 12px',
-          borderRadius: 8,
-          transition: 'background 0.2s'
-        }}
-        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-        onClick={() => alert('Perfil de usuario (próximamente)')}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10,
+            cursor: 'pointer',
+            padding: '6px 12px',
+            borderRadius: 8,
+            transition: 'background 0.2s'
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
+          onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+          onClick={() => alert('Perfil de usuario (próximamente)')}
         >
           <FaUserCircle style={{ fontSize: 30 }} />
           <div style={{ lineHeight: 1.2 }}>
-            <div style={{ fontSize: '0.88rem', fontWeight: 600 }}>
-              Admin
-            </div>
-            <div style={{ fontSize: '0.72rem', opacity: 0.85 }}>
-              Administrador
-            </div>
+            <div style={{ fontSize: '0.88rem', fontWeight: 600 }}>Admin</div>
+            <div style={{ fontSize: '0.72rem', opacity: 0.85 }}>Administrador</div>
           </div>
         </div>
       </div>

@@ -203,8 +203,8 @@ export default function Sugerencias() {
 
   return (
     <div style={{ width: '90%', margin: 'auto', background: '#f8f9fa', padding: 2 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={1} mt={0}>
-        <h2 style={{ marginBottom: 18, color: '#9c1821' }}>Sugerencias por Filial</h2>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={0} mt={0}>
+        <h2 style={{ marginBottom: 10, color: '#9c1821' }}>Sugerencias por Filial</h2>
         <Button
           variant="contained"
           startIcon={<PictureAsPdfIcon />}

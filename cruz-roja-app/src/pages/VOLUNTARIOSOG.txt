@@ -14,7 +14,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-import { useTheme, useMediaQuery } from '@mui/material';
 
 const CALIDAD_OPTIONS = ["Activo", "Llamada"];
 const GENERO_OPTIONS = ["F", "M", "Otro"];
@@ -46,9 +45,6 @@ export default function Voluntarios() {
   const [updatingEdades, setUpdatingEdades] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
   useEffect(() => {
     fetch('http://localhost:3001/api/voluntarios')
       .then(response => response.json())
@@ -77,13 +73,13 @@ export default function Voluntarios() {
         headers: { 'Content-Type': 'application/json' }
       });
       const result = await response.json();
-
+      
       setSnackbar({
         open: true,
         message: result.mensaje || 'Actualización completada',
         severity: response.ok ? 'success' : 'error'
       });
-
+      
       // Recargar voluntarios para mostrar edades actualizadas
       if (response.ok) {
         setTimeout(() => window.location.reload(), 1500);
@@ -170,17 +166,17 @@ export default function Voluntarios() {
 
   const columns = [
     { field: 'id', headerName: 'ID', width: 52 },
-    {
-      field: 'acciones',
-      headerName: '',
-      width: 60,
-      sortable: false,
+    { 
+      field: 'acciones', 
+      headerName: '', 
+      width: 60, 
+      sortable: false, 
       filterable: false,
       renderCell: (params) => (
         <Button
           size="small"
           onClick={() => handleOpenModal(params.row)}
-          sx={{
+          sx={{ 
             borderColor: '#9c1821',
             color: '#9c1821',
             minWidth: '40px',
@@ -196,9 +192,9 @@ export default function Voluntarios() {
       )
     },
     { field: 'Filial', headerName: 'Filial', width: 120 },
-    {
-      field: 'Calidad de voluntario',
-      headerName: 'Calidad de voluntario',
+    { 
+      field: 'Calidad de voluntario', 
+      headerName: 'Calidad de voluntario', 
       width: 180,
       renderCell: (params) => {
         const { id, value } = params;
@@ -222,19 +218,19 @@ export default function Voluntarios() {
     { field: 'Nombres voluntario', headerName: 'Nombres voluntario', width: 150 },
     { field: 'Apellidos voluntarios', headerName: 'Apellidos voluntarios', width: 170 },
     { field: 'RUT', headerName: 'RUT', width: 130 },
-    {
-      field: 'Fecha de ingreso',
-      headerName: 'Fecha de ingreso',
-      width: 150,
+    { 
+      field: 'Fecha de ingreso', 
+      headerName: 'Fecha de ingreso', 
+      width: 150, 
       renderCell: (params) => {
         if (!params.value) return '';
         const date = excelDateToJSDate(params.value);
         return date.toLocaleDateString('es-CL');
       }
     },
-    {
-      field: 'Fecha nacimiento',
-      headerName: 'Fecha nacimiento',
+    { 
+      field: 'Fecha nacimiento', 
+      headerName: 'Fecha nacimiento', 
       width: 150,
       renderCell: (params) => {
         if (!params.value) return '';
@@ -247,17 +243,18 @@ export default function Voluntarios() {
     { field: 'Telefono', headerName: 'Teléfono', width: 130 },
     { field: 'Cargo', headerName: 'Cargo', width: 120 },
     { field: 'Edad', headerName: 'Edad', width: 90 },
-    {
-      field: 'Edad de ingreso a CRC',
-      headerName: 'Edad ingreso CRC',
+    { field: 'Cargo', headerName: 'Cargo', width: 120 },
+    { 
+      field: 'Edad de ingreso a CRC', 
+      headerName: 'Edad ingreso CRC', 
       width: 160,
       renderCell: (params) => {
         const edadIngreso = params.value;
         return edadIngreso ? Math.round(edadIngreso).toString() : 'N/A';
       }
-    },
+    },    
     { field: 'Antigüedad', headerName: 'Antigüedad', width: 120 },
-    {
+    { 
       field: 'Género',
       headerName: 'Género',
       width: 100,
@@ -283,9 +280,6 @@ export default function Voluntarios() {
     { field: 'Instructores doctrina', headerName: 'Instructores doctrina', width: 140 },
   ];
 
-  // Filtrar columnas para movil
-  const displayedColumns = isMobile ? columns.filter(col => ['id', 'Filial', 'Calidad de voluntario', 'Nombres voluntario', 'RUT'].includes(col.field)) : columns;
-
   return (
     <div>
       {/* NUEVO: BOTÓN ACTUALIZAR EDADES */}
@@ -300,7 +294,6 @@ export default function Voluntarios() {
             '&:hover': { backgroundColor: '#7a1419' },
             boxShadow: '0 4px 12px rgba(156, 24, 33, 0.3)'
           }}
-          size="small"
         >
           {updatingEdades ? (
             <>
@@ -313,30 +306,27 @@ export default function Voluntarios() {
         </Button>
       </Box>
 
-      {/* DataGrid responsive */}
+      {/* DataGrid */}
       <Box
         sx={{
-          height: { xs: 600, sm: 550, md: 490 },
+          height: 490,
           width: '100%',
-          maxWidth: { xs: '100%', sm: 1000 },
-          margin: 'auto',
+          maxWidth: 1000,
           background: '#fff',
+          margin: 'auto',
           borderRadius: 2,
           boxShadow: 1,
-          overflowX: 'auto',
-          p: { xs: 1, sm: 2 },
+          overflow: 'auto',
         }}
       >
         <DataGrid
           rows={rows}
-          columns={displayedColumns}
-          pageSize={isMobile ? 10 : 15}
-          rowsPerPageOptions={isMobile ? [10, 15] : [15, 25, 50]}
-          loadingOverlayVisibility={loading}
+          columns={columns}
+          pageSize={15}
+          rowsPerPageOptions={[15, 25, 50]}
+          loading={loading}
           disableSelectionOnClick
           getRowId={(row) => row.id}
-          suppressCellFocus={true}
-          density="compact"
         />
       </Box>
 
@@ -369,7 +359,7 @@ export default function Voluntarios() {
         <DialogContent sx={{ mt: 2 }}>
           {selectedVoluntario && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
                 <Box>
                   <Typography variant="subtitle2" color="text.secondary">
                     Nombre

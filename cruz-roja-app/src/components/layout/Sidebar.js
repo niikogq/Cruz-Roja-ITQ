@@ -1,13 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FaHome, FaUserFriends, FaUniversity, FaCommentAlt, FaFileAlt } from 'react-icons/fa';
 import logo from '../../assets/logo-cruz-roja.png';
 
 import Drawer from '@mui/material/Drawer';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
+
 
 // Menú original
 const menu = [
@@ -19,7 +16,7 @@ const menu = [
 ];
 
 // SOLO el contenido visual del sidebar (logo + lista)
-const SidebarContent = ({ location }) => (
+const SidebarContent = ({ location, onItemClick }) => (
   <div
     style={{
       width: 240,
@@ -70,6 +67,7 @@ const SidebarContent = ({ location }) => (
           <li key={item.path} style={{ marginBottom: 6 }}>
             <Link
               to={item.path}
+              onClick={onItemClick}
               style={{
                 textDecoration: 'none',
                 color: isActive ? '#fff' : '#9c1821',
@@ -118,68 +116,30 @@ const SidebarContent = ({ location }) => (
   </div>
 );
 
-const Sidebar = () => {
+const Sidebar = ({ open, onClose }) => {
   const location = useLocation();
-  const theme = useTheme();
-  const isDesktop = useMediaQuery(theme.breakpoints.up('md')); // >= md sidebar fijo
-  const [open, setOpen] = useState(false);
-
-  const toggleDrawer = () => setOpen((prev) => !prev);
-
+  
   return (
-    <>
-      {/* Botón hamburguesa SOLO en móvil/tablet. 
-          Ponlo aquí o muévelo a tu header si prefieres. */}
-      {!isDesktop && (
-        <IconButton
-          color="inherit"
-          onClick={toggleDrawer}
-          sx={{ position: 'fixed', top: 12, left: 12, zIndex: 1300 }}
-        >
-          <MenuIcon />
-        </IconButton>
-      )}
-
-      {/* Sidebar fijo en escritorio (mismo estilo original) */}
-      {isDesktop && (
-        <nav
-          style={{
-            width: 240,
-            background: 'linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%)',
-            height: '100vh',
-            paddingTop: 0,
-            boxShadow: '4px 0 20px rgba(0,0,0,0.08)',
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            zIndex: 1000,
-            overflowY: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <SidebarContent location={location} />
-        </nav>
-      )}
-
-      {/* Sidebar desplegable en móvil/tablet */}
-      {!isDesktop && (
-        <Drawer
-          anchor="left"
-          open={open}
-          onClose={toggleDrawer}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            '& .MuiDrawer-paper': {
-              width: 240,
-              boxShadow: '4px 0 20px rgba(0,0,0,0.08)',
-            },
-          }}
-        >
-          <SidebarContent location={location} />
-        </Drawer>
-      )}
-    </>
+    <Drawer
+      anchor="left"
+      open={open}
+      onClose={onClose}              // se llama cuando haces click fuera o presionas ESC
+      variant="temporary"            // <- SIEMPRE temporary
+      ModalProps={{ keepMounted: true }}
+      sx={{
+        zIndex: 1300,
+        '& .MuiDrawer-paper': {
+          width: 240,
+          boxShadow: '4px 0 20px rgba(0,0,0,0.08)',
+        },
+      }}
+    >
+      <SidebarContent
+        location={location}
+        onItemClick={onClose}        // también se cierra al hacer click en una opción
+        onClose={onClose}           // botón de cerrar dentro del sidebar
+      />
+    </Drawer>
   );
 };
 
