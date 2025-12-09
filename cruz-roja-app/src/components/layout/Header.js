@@ -34,10 +34,10 @@ const Header = ({ onToggleSidebar }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = sessionStorage.getItem('token');
         if (!token) return;
 
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/me`, {
+        const response = await fetch('http://localhost:3001/auth/me', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -69,7 +69,7 @@ const Header = ({ onToggleSidebar }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('token');
     handleClose();
     navigate('/login');
   };

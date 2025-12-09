@@ -4,13 +4,13 @@ import { DataGrid } from '@mui/x-data-grid';
 import { Doughnut, Bar } from 'react-chartjs-2';
 import { Box, Button, Grid, Typography, CircularProgress } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
-// Imports optimizados
 import { voluntariosService } from '../services/voluntariosService';
 import { EditableSelect } from '../components/common/EditableSelect';
 import { StatsCard } from '../components/common/StatsCard';
 import { formatDate } from '../utils/dateHelpers';
 import { CALIDAD_OPTIONS, GENERO_OPTIONS, COLORS, CHART_COLORS } from '../utils/constants';
+import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from 'chart.js';
+ChartJS.register( ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend );
 
 export default function FilialDetalle() {
   const { nombre } = useParams();
@@ -194,7 +194,7 @@ export default function FilialDetalle() {
 
       {/* Tarjetas de estadísticas */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ sx: 12, sm: 6, md:3 }}>
           <StatsCard
             title="Total Voluntarios"
             value={estadisticas.total}
@@ -202,7 +202,7 @@ export default function FilialDetalle() {
             shadowColor="rgba(156, 24, 33, 0.3)"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ sx: 12, sm: 6, md:3 }}>
           <StatsCard
             title="Voluntarios Activos"
             value={estadisticas.activos}
@@ -210,7 +210,7 @@ export default function FilialDetalle() {
             shadowColor="rgba(56, 176, 0, 0.3)"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ sx: 12, sm: 6, md:3 }}>
           <StatsCard
             title="De Llamada"
             value={estadisticas.llamada}
@@ -218,7 +218,7 @@ export default function FilialDetalle() {
             shadowColor="rgba(248, 193, 2, 0.3)"
           />
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid size={{ sx: 12, sm: 6, md:3 }}>
           <StatsCard
             title="Edad Promedio"
             value={estadisticas.promedioEdad}
@@ -230,7 +230,7 @@ export default function FilialDetalle() {
 
       {/* Gráficos */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ sx: 12, sm: 6 }}>
           <Box sx={{
             background: '#fff',
             p: 3,
@@ -255,7 +255,7 @@ export default function FilialDetalle() {
             </Box>
           </Box>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ sx: 12, sm: 6 }}>
           <Box sx={{
             background: '#fff',
             p: 3,

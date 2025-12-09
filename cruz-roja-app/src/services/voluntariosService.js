@@ -1,5 +1,7 @@
 import { API_ENDPOINTS } from '../config/api';
 
+console.log('URL de voluntarios:', API_ENDPOINTS.voluntarios); // ← Agrega esto
+
 export const voluntariosService = {
   getAll: async () => {
     const response = await fetch(API_ENDPOINTS.voluntarios);
