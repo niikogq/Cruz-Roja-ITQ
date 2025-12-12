@@ -1,0 +1,1 @@
+{"version":3,"file":"static/js/865.27cbf10c.chunk.js","mappings":"8IAAe,SAASA,IACtB,OAAOC,EAAAA,EAAAA,KAAA,MAAAC,SAAI,YACb,C","sources":["pages/Reportes.js"],"sourcesContent":["export default function Reportes() {\r\n  return <h2>Reportes</h2>;\r\n}\r\n"],"names":["Reportes","_jsx","children"],"ignoreList":[],"sourceRoot":""}

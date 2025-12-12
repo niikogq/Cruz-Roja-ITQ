@@ -5,15 +5,15 @@ import logoCruzRoja from '../assets/logo-cruz-roja.png'; // ajusta el nombre si 
 
 function Login() {
   const handleSuccess = async (credentialResponse) => {
-  try {
-    const response = await fetch('http://localhost:3001/auth/google', { // ← Hardcodear
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ token: credentialResponse.credential })
-    });
+    try {
+      const response = await fetch('/auth/google', {  // ← CAMBIO
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: credentialResponse.credential })
+      });
 
       const data = await response.json();
-      
+
       if (data.success) {
         sessionStorage.setItem('token', data.token);
         window.location.href = '/';

@@ -1,0 +1,1 @@
+{"version":3,"file":"static/js/670.ceccb099.chunk.js","mappings":"8IAAe,SAASA,IACtB,OAAOC,EAAAA,EAAAA,KAAA,MAAAC,SAAI,cACb,C","sources":["pages/Donaciones.js"],"sourcesContent":["export default function Donaciones() {\r\n  return <h2>Donaciones</h2>;\r\n}\r\n"],"names":["Donaciones","_jsx","children"],"ignoreList":[],"sourceRoot":""}

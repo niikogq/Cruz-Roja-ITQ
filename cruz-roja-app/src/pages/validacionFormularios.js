@@ -1,18 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
+import { API_ENDPOINTS } from '../config/api';  // ← NUEVO
 
 export default function ValidacionFormularios() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/validacionFormularios')
+    fetch(`${API_ENDPOINTS.filialesTotals.replace('/filialesTotals', '/validacionFormularios')}`)
       .then(res => res.json())
       .then(data => {
         const mappedRows = data.map((item, idx) => ({
           id: idx + 1,
-          numero: item.__EMPTY_1 || '',             // N° (código regional)
+          numero: item.__EMPTY_1 || '',
           sedeRegional: item['Sede Regional'] || '',
           presidente: item.Presidente || '',
           fonoSede: item['Fono Sede'] || '',
@@ -27,6 +28,7 @@ export default function ValidacionFormularios() {
         setLoading(false);
       });
   }, []);
+
 
   const columns = [
     { field: 'numero', headerName: 'N°', width: 80 },

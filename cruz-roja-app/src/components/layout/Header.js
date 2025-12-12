@@ -37,7 +37,7 @@ const Header = ({ onToggleSidebar }) => {
         const token = sessionStorage.getItem('token');
         if (!token) return;
 
-        const response = await fetch('http://localhost:3001/auth/me', {
+        const response = await fetch('/auth/me', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -52,8 +52,8 @@ const Header = ({ onToggleSidebar }) => {
       }
     };
 
-    fetchUserData();
-  }, []);
+  fetchUserData();
+}, []);
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);

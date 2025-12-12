@@ -1,4 +1,4 @@
-const express = require('express');
+/*const express = require('express');
 const router = express.Router();
 const { MongoClient } = require('mongodb');
 
@@ -62,3 +62,4 @@ router.get('/', async (req, res) => {
 });
 
 module.exports = router;
+*/

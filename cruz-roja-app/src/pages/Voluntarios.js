@@ -15,13 +15,14 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useTheme, useMediaQuery } from '@mui/material';
+import { API_ENDPOINTS } from '../config/api';
 
 const CALIDAD_OPTIONS = ["Activo", "Llamada"];
 const GENERO_OPTIONS = ["F", "M", "Otro"];
 
 function excelDateToJSDate(serial) {
   const utc_days = Math.floor(serial - 25569);
-  const utc_value = (utc_days + 1) * 86400;                  
+  const utc_value = (utc_days + 1) * 86400;
   const date_info = new Date(utc_value * 1000);
   const fractional_day = serial - Math.floor(serial) + 0.0000001;
   let total_seconds = Math.floor(86400 * fractional_day);
@@ -42,7 +43,6 @@ export default function Voluntarios() {
   const [updatingGeneroId, setUpdatingGeneroId] = useState(null);
   const [selectedVoluntario, setSelectedVoluntario] = useState(null);
   const [openModal, setOpenModal] = useState(false);
-  // NUEVOS ESTADOS
   const [updatingEdades, setUpdatingEdades] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
 
@@ -50,7 +50,7 @@ export default function Voluntarios() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/voluntarios')
+    fetch(API_ENDPOINTS.voluntarios)
       .then(response => response.json())
       .then(data => {
         if (!Array.isArray(data) || data.length === 0) {
@@ -67,12 +67,12 @@ export default function Voluntarios() {
       });
   }, []);
 
-  // NUEVA FUNCIÓN: Actualizar edades masivamente
+  // Actualizar edades masivamente
   const handleActualizarEdades = async () => {
     setUpdatingEdades(true);
     setSnackbar({ open: false, message: '', severity: 'info' });
     try {
-      const response = await fetch('http://localhost:3001/api/actualizarEdades', {
+      const response = await fetch('/api/actualizarEdades', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -84,7 +84,6 @@ export default function Voluntarios() {
         severity: response.ok ? 'success' : 'error'
       });
 
-      // Recargar voluntarios para mostrar edades actualizadas
       if (response.ok) {
         setTimeout(() => window.location.reload(), 1500);
       }
@@ -103,7 +102,7 @@ export default function Voluntarios() {
   const handleCalidadChange = (id, newValue) => {
     setUpdatingId(id);
     const row = rows.find(r => r.id === id);
-    fetch(`http://localhost:3001/api/voluntarios/${row._id}`, {
+    fetch(`/api/voluntarios/${row._id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ "Calidad de voluntario": newValue })
@@ -132,7 +131,7 @@ export default function Voluntarios() {
   const handleGeneroChange = (id, newValue) => {
     setUpdatingGeneroId(id);
     const row = rows.find(r => r.id === id);
-    fetch(`http://localhost:3001/api/voluntarios/${row._id}`, {
+    fetch(`/api/voluntarios/${row._id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ "Género": newValue })

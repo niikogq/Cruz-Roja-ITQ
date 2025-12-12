@@ -4,15 +4,16 @@ import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { API_ENDPOINTS } from '../config/api';  // ← NUEVO
 
 export default function Filiales() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // ← NUEVO
+  const navigate = useNavigate();
 
   const fetchFiliales = () => {
     setLoading(true);
-    fetch('http://localhost:3001/api/filialesTotals')
+    fetch(API_ENDPOINTS.filialesTotals)
       .then(response => response.json())
       .then(data => {
         const numberedRows = data.map((item, index) => ({

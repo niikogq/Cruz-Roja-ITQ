@@ -1,0 +1,1 @@
+{"version":3,"file":"static/js/778.076e8723.chunk.js","mappings":"8IAAe,SAASA,IACtB,OAAOC,EAAAA,EAAAA,KAAA,MAAAC,SAAI,eACb,C","sources":["pages/Emergencias.js"],"sourcesContent":["export default function Emergencias() {\r\n  return <h2>Emergencias</h2>;\r\n}\r\n"],"names":["Emergencias","_jsx","children"],"ignoreList":[],"sourceRoot":""}

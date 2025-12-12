@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import Box from '@mui/material/Box';
 import { jsPDF } from 'jspdf';
-
+import { API_ENDPOINTS } from '../config/api';
 
 const columns = [
   { field: 'Filial', headerName: 'Filial', width: 200 },
@@ -27,10 +27,10 @@ export default function Sugerencias() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/filiales')
+    fetch(API_ENDPOINTS.filiales)
       .then(res => res.json())
       .then(data => {
-        setRows(data.map((v, idx) => ({ 
+        setRows(data.map((v, idx) => ({
           id: v._id.toString(),
           _id: v._id,
           ...v,
@@ -46,8 +46,8 @@ export default function Sugerencias() {
 
   const processRowUpdate = async (newRow) => {
     console.log('Guardando comentario para ID:', newRow.id);
-    
-    const response = await fetch(`http://localhost:3001/api/filiales/${newRow.id}`, {
+
+    const response = await fetch(`/api/filiales/${newRow.id}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ Comentarios: newRow.Comentarios })

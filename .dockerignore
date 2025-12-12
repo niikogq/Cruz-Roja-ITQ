@@ -1,0 +1,6 @@
+node_modules
+npm-debug.log
+.git
+.env
+cruz-roja-app/node_modules
+cruz-roja-importador/node_modules

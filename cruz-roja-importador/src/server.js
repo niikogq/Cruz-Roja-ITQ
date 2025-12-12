@@ -3,6 +3,7 @@ const cors = require('cors');
 const { MongoClient } = require('mongodb');
 const session = require('express-session');
 const passport = require('passport');
+const path = require('path');
 require('dotenv').config();
 
 // Importar routers PRIMERO
@@ -11,9 +12,9 @@ const voluntariosRouter = require('./Routes/voluntarios');
 const filialesRouter = require('./Routes/filiales');
 const validacionRouter = require('./Routes/validacionFormularios');
 const actualizarEdadesRouter = require('./Routes/actualizarEdades');
-const authGoogleRouter = require('./Routes/authGoogle'); // Nueva ruta de autenticación
+const authGoogleRouter = require('./Routes/authGoogle');
 
-//const filialesJerarquicas = require('./Routes/filialesJerarquicas');
+//const filialesJerarquicas = require('./Routes/filialesJerarquias');
 
 const app = express();
 
@@ -33,7 +34,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: false, // Cambiar a true en producción con HTTPS
+    // En producción con HTTPS (Cloud Run) debería ser true
+    secure: process.env.NODE_ENV === 'production',
     httpOnly: true,
     maxAge: 24 * 60 * 60 * 1000 // 24 horas
   }
@@ -43,22 +45,19 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-const client = new MongoClient('mongodb+srv://ngalloquinchen_db_user:cs9zcjsQEayMMCIm@cruzroja.twuyd12.mongodb.net/?appName=cruzroja');
+// Cliente MongoDB usando variable de entorno
+const client = new MongoClient(process.env.MONGODB_URI);
 
 async function main() {
   await client.connect();
   const db = client.db('cruz_roja_app');
   app.locals.db = db;
-  
 
   passport.setDB(db);
-  // Hacer la base de datos disponible en Passport (útil para guardar usuarios)
   app.locals.passport = passport;
 
-  // Registrar rutas de autenticación (SIN protección)
+   // ✅ 1. RUTAS API Y AUTH PRIMERO (IMPORTANTE)
   app.use('/auth', authGoogleRouter);
-
-  // Registrar rutas existentes (sin autenticación por ahora, la agregaremos después)
   app.use('/api/filialesTotals', filialesTotalsRouter);
   app.use('/api/voluntarios', voluntariosRouter);
   app.use('/api/filiales', filialesRouter);
@@ -85,6 +84,18 @@ async function main() {
     }
   });
 
+  // Servir frontend de React (build)
+  // Dentro del contenedor, el build se copia a /app/cruz-roja-importador/build
+  // y este archivo está en /app/cruz-roja-importador/src
+  // Servir archivos estáticos del build
+  app.use(express.static(path.join(__dirname, '../build')));
+
+  // Cualquier ruta que no sea /api o /auth → React
+  app.get(/^\/(?!api|auth).*/, (req, res) => {
+    res.sendFile(path.join(__dirname, '../build', 'index.html'));
+  });
+
+  // Middleware de manejo de errores (mantiene tu lógica)
   app.use((err, req, res, next) => {
     console.error('Error en la aplicación:', err);
     res.status(err.status || 500).json({
@@ -95,10 +106,11 @@ async function main() {
     });
   });
 
-  const PORT = 3001;
+  const PORT = process.env.NODE_ENV === 'production' ? 8080 : (process.env.PORT || 3001);
   app.listen(PORT, () => {
     console.log(`API corriendo en http://localhost:${PORT}`);
     console.log(`Google OAuth disponible en http://localhost:${PORT}/auth/google`);
+    console.log(`Servidor básico OK en puerto ${PORT}`);
   });
 }
 
