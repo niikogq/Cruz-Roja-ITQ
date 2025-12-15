@@ -1,27 +1,24 @@
-// cruz-roja-importador/src/Routes/authGoogle.js
 const express = require('express');
 const passport = require('passport');
 const { OAuth2Client } = require('google-auth-library');
+const { getUserOrgUnitPath, determinarRol } = require('../services/directoryService'); // NUEVO
 const router = express.Router();
 
-// Cliente para verificar tokens (NUEVO)
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-// NUEVA RUTA: Para el botón de Google del frontend
-// REEMPLAZA la ruta POST /google en authGoogle.js
+// Ruta para el botón de Google del frontend
 router.post('/google', async (req, res) => {
   try {
     const { token } = req.body;
     
-    // Verificar el token con Google
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
     
     const payload = ticket.getPayload();
+    console.log('📧 Usuario intentando login:', payload.email);
     
-    // Verificar dominio @cruzroja.cl
     if (!payload.email.endsWith('@cruzroja.cl')) {
       return res.status(403).json({
         success: false,
@@ -29,7 +26,36 @@ router.post('/google', async (req, res) => {
       });
     }
     
-    // Buscar o crear usuario en la base de datos
+    // NUEVO: Logs detallados
+    let rolInfo = null;
+    let orgUnitPath = null;
+    
+    try {
+      console.log('🔍 Obteniendo orgUnitPath para:', payload.email);
+      console.log('📝 ADMIN_EMAIL configurado:', process.env.ADMIN_EMAIL);
+      
+      orgUnitPath = await getUserOrgUnitPath(payload.email);
+      console.log('✅ OrgUnitPath obtenido:', orgUnitPath);
+      
+      rolInfo = determinarRol(orgUnitPath);
+      console.log('✅ Rol determinado:', rolInfo);
+      
+      if (!rolInfo) {
+        console.log('❌ No se pudo determinar rol');
+        return res.status(403).json({
+          success: false,
+          message: 'Usuario sin rol asignado en la organización'
+        });
+      }
+    } catch (error) {
+      console.error('❌ ERROR completo:', error);
+      console.error('Stack:', error.stack);
+      return res.status(500).json({
+        success: false,
+        message: 'Error al verificar permisos del usuario: ' + error.message
+      });
+    }
+    
     const db = req.app.locals.db;
     const usuariosCollection = db.collection('usuarios');
     
@@ -41,25 +67,47 @@ router.post('/google', async (req, res) => {
         nombre: payload.name,
         foto: payload.picture,
         googleId: payload.sub,
+        rol: rolInfo.rol,
+        region: rolInfo.region,
+        filial: rolInfo.filial,
+        orgUnitPath: orgUnitPath,
         fechaRegistro: new Date()
       };
       const result = await usuariosCollection.insertOne(nuevoUsuario);
       usuario = { ...nuevoUsuario, _id: result.insertedId };
+    } else {
+      await usuariosCollection.updateOne(
+        { email: payload.email },
+        { 
+          $set: {
+            rol: rolInfo.rol,
+            region: rolInfo.region,
+            filial: rolInfo.filial,
+            orgUnitPath: orgUnitPath,
+            ultimoAcceso: new Date()
+          }
+        }
+      );
+      usuario.rol = rolInfo.rol;
+      usuario.region = rolInfo.region;
+      usuario.filial = rolInfo.filial;
     }
     
-    // Responder con éxito (sin req.login)
     res.json({
       success: true,
-      token: usuario._id.toString(), // Usa el ID como token simple
+      token: usuario._id.toString(),
       user: {
         email: usuario.email,
         nombre: usuario.nombre,
-        foto: usuario.foto
+        foto: usuario.foto,
+        rol: usuario.rol,
+        region: usuario.region,
+        filial: usuario.filial
       }
     });
     
   } catch (error) {
-    console.error('Error verificando token de Google:', error);
+    console.error('❌ Error general:', error);
     res.status(401).json({
       success: false,
       message: 'Token inválido: ' + error.message
@@ -67,7 +115,8 @@ router.post('/google', async (req, res) => {
   }
 });
 
-// Agregar DESPUÉS de la ruta POST /google
+
+// Ruta para obtener información del usuario autenticado
 router.get('/me', async (req, res) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
@@ -90,9 +139,12 @@ router.get('/me', async (req, res) => {
     res.json({
       success: true,
       user: {
-        nombre: usuario.nombre,
         email: usuario.email,
-        foto: usuario.foto
+        nombre: usuario.nombre,
+        foto: usuario.foto,
+        rol: usuario.rol,           // NUEVO
+        region: usuario.region,     // NUEVO
+        filial: usuario.filial      // NUEVO
       }
     });
 

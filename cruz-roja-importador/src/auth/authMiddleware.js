@@ -9,7 +9,7 @@ const isAuthenticated = (req, res, next) => {
   });
 };
 
-// Middleware para verificar roles (implementar después)
+// Middleware para verificar roles específicos
 const hasRole = (...roles) => {
   return (req, res, next) => {
     if (!req.isAuthenticated()) {
@@ -19,7 +19,7 @@ const hasRole = (...roles) => {
     if (!req.user.rol || !roles.includes(req.user.rol)) {
       return res.status(403).json({ 
         error: 'Acceso denegado',
-        message: 'No tiene permisos suficientes' 
+        message: 'No tiene permisos suficientes para acceder a este recurso' 
       });
     }
     
@@ -27,7 +27,34 @@ const hasRole = (...roles) => {
   };
 };
 
+// Función para aplicar filtros según el rol del usuario
+const aplicarFiltrosRol = (req) => {
+  const user = req.user;
+  const filtros = {};
+  
+  if (user.rol === 'admin') {
+    // Admins ven todo - sin filtros
+    return filtros;
+  }
+  
+  if (user.rol === 'sede_regional') {
+    // Sede regional ve solo su región
+    filtros.region = user.region;
+    return filtros;
+  }
+  
+  if (user.rol === 'presidente') {
+    // Presidente ve solo su filial
+    filtros.region = user.region;
+    filtros.filial = user.filial;
+    return filtros;
+  }
+  
+  return filtros;
+};
+
 module.exports = {
   isAuthenticated,
-  hasRole
+  hasRole,
+  aplicarFiltrosRol
 };
