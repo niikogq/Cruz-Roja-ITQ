@@ -20,6 +20,8 @@ import { useTheme, useMediaQuery } from '@mui/material';
 import { COLORS } from '../utils/constants';
 import { API_ENDPOINTS } from '../config/api';
 import AddIcon from '@mui/icons-material/Add';
+import { HojaDeVidaModal } from '../components/modals/HojaDeVidaModal';
+
 
 const CALIDAD_OPTIONS = ["Activo", "Llamada"];
 const GENERO_OPTIONS = ["F", "M", "Otro"];
@@ -48,6 +50,7 @@ export default function Voluntarios() {
   const [updatingGeneroId, setUpdatingGeneroId] = useState(null);
   const [selectedVoluntario, setSelectedVoluntario] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [openHojaVida, setOpenHojaVida] = useState(false);
   const [updatingEdades, setUpdatingEdades] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
 
@@ -505,21 +508,42 @@ export default function Voluntarios() {
             </Box>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button 
-            onClick={handleCloseModal} 
-            variant="contained" 
-            sx={{ 
-              bgcolor: '#9c1821',
-              '&:hover': {
-                bgcolor: '#7a1419'
-              }
-            }}
-          >
-            Cerrar
-          </Button>
-        </DialogActions>
+          <DialogActions>
+            <Button 
+              onClick={() => setOpenHojaVida(true)}
+              variant="outlined"
+              sx={{ 
+                borderColor: COLORS.primary,
+                color: COLORS.primary,
+                '&:hover': {
+                  backgroundColor: 'rgba(156, 24, 33, 0.04)'
+                }
+              }}
+            >
+              📄 Ver Hoja de Vida
+            </Button>
+            <Button 
+              onClick={handleCloseModal} 
+              variant="contained" 
+              sx={{ 
+                bgcolor: '#9c1821',
+                '&:hover': {
+                  bgcolor: '#7a1419'
+                }
+              }}
+            >
+              Cerrar
+            </Button>
+          </DialogActions>
       </Dialog>
+      {/* Modal de Hoja de Vida */}
+      <HojaDeVidaModal 
+        open={openHojaVida}
+        onClose={() => setOpenHojaVida(false)}
+        voluntarioId={selectedVoluntario?._id}
+        voluntarioData={selectedVoluntario}
+      />
     </div>
   );
 }
+

@@ -8,13 +8,41 @@ const { isAuthenticated } = require('../auth/authMiddleware');
 router.get('/', isAuthenticated, async (req, res) => {
   try {
     const db = req.app.locals.db;
-    const voluntarios = await db.collection('Datos voluntarios').find({}).toArray();
+    const { aplicarFiltrosRol } = require('../auth/authMiddleware');
+    
+    // Obtener filtros según el rol del usuario
+    const filtros = aplicarFiltrosRol(req);
+    
+    console.log('📊 Filtros aplicados para', req.user.email, ':', filtros);
+    
+    // Aplicar filtros a la consulta
+    let query = {};
+    if (filtros.filial) {
+      // Presidente: solo su filial
+      query.Filial = filtros.filial;
+    } else if (filtros.region) {
+      // Sede Regional: todas las filiales de su región
+      // Necesitamos buscar filiales que pertenezcan a esa región
+      const filiales = await db.collection('Datos filial').find({ 
+        'Sede regional': filtros.region 
+      }).toArray();
+      
+      const nombreFiliales = filiales.map(f => f.Filial);
+      query.Filial = { $in: nombreFiliales };
+    }
+    // Admin: sin filtros (query vacío = todos)
+    
+    const voluntarios = await db.collection('Datos voluntarios').find(query).toArray();
+    
+    console.log(`✅ Voluntarios retornados: ${voluntarios.length}`);
+    
     res.json(voluntarios);
   } catch (error) {
     console.error('Error obteniendo voluntarios:', error);
     res.status(500).json({ error: 'Error obteniendo los voluntarios.' });
   }
 });
+
 
 
 // PATCH - Actualizar un voluntario (PROTEGIDO + VALIDADO)
@@ -28,8 +56,11 @@ router.patch('/:id', isAuthenticated, async (req, res) => {
       'Nombre', 'Apellido', 'RUT', 'Edad', 'Género', 'Dirección',
       'Comuna', 'Teléfono', 'Email', 'Filial', 'Sede', 'Region',
       'Calidad de voluntario', 'Fecha nacimiento', 'Fecha de ingreso',
-      'Antigüedad', 'Comentarios'
+      'Antigüedad', 'Comentarios', 'Foto', 'Comité regional', 'Alergia',
+      'Enfermedades', 'Títulos aprobados', 'Cursos aprobados', 'Sanciones',
+      'Reconocimiento anual'
     ];
+
     
     // Filtrar solo campos permitidos
     const updateFields = {};

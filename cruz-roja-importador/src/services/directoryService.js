@@ -2,6 +2,22 @@ const { google } = require('googleapis');
 const path = require('path');
 const fs = require('fs');
 
+// Mapeo de nombres de Google Workspace a nombres en BD
+const MAPEO_REGIONES = {
+  'Comité Regional Magallanes': 'Magallanes y la Antártica',
+  'Región Metropolitana': 'Metropolitana',
+  'Comité Regional Valparaiso': 'Valparaíso',
+  'Comité Regional de O\'Higgins': 'Bernardo O\'Higgins',
+  'Comité Regional del Maule': 'Maule',
+  'Comité Regional Bio Bio': 'Biobío y Ñuble',
+  'Comité Regional Araucanía': 'Araucanía',
+  'Comité Regional de los Rios': 'Los Ríos',
+  'Comité Regional De Los Lagos y Aysen': 'Los Lagos y Aysén',
+  'Comité Regional Tarapacá, Arica y Parinacota': 'Arica Parinacota Tarapacá',
+  'Comité Regional Antofagasta': 'Antofagasta',
+  'Comité Regional Atacama - Coquimbo': 'Atacama-Coquimbo'
+};
+
 // Cargar credenciales usando path.resolve
 const serviceAccountPath = path.resolve(__dirname, '../../service-account.json');
 const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
@@ -44,22 +60,36 @@ function determinarRol(orgUnitPath) {
 
   const partes = orgUnitPath.split('/').filter(p => p);
 
+  console.log('📊 Partes del path:', partes);
+
+  // Verificar que empiece con "Comites Regionales"
+  if (partes.length < 2 || partes[0] !== 'Comites Regionales') {
+    console.log('⚠️ No pertenece a Comites Regionales');
+    return null;
+  }
+
   // Sede Regional - Nivel 2
-  if (partes.length === 2 && partes[0] === 'Comités Regionales') {
-    console.log(`✅ Rol asignado: SEDE_REGIONAL - Región: ${partes[1]}`);
+  if (partes.length === 2) {
+    const regionGoogleWorkspace = partes[1];
+    const regionBD = MAPEO_REGIONES[regionGoogleWorkspace] || regionGoogleWorkspace;
+    
+    console.log(`✅ Rol asignado: SEDE_REGIONAL - Región GW: ${regionGoogleWorkspace}, Región BD: ${regionBD}`);
     return {
       rol: 'sede_regional',
-      region: partes[1],
+      region: regionBD,
       filial: null
     };
   }
 
   // Presidente - Nivel 3
-  if (partes.length === 3 && partes[0] === 'Comités Regionales') {
-    console.log(`✅ Rol asignado: PRESIDENTE - Región: ${partes[1]}, Filial: ${partes[2]}`);
+  if (partes.length === 3) {
+    const regionGoogleWorkspace = partes[1];
+    const regionBD = MAPEO_REGIONES[regionGoogleWorkspace] || regionGoogleWorkspace;
+    
+    console.log(`✅ Rol asignado: PRESIDENTE - Región GW: ${regionGoogleWorkspace}, Región BD: ${regionBD}, Filial: ${partes[2]}`);
     return {
       rol: 'presidente',
-      region: partes[1],
+      region: regionBD,
       filial: partes[2]
     };
   }

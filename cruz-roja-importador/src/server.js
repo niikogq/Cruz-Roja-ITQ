@@ -33,6 +33,7 @@ const filialesRouter = require('./Routes/filiales');
 const validacionRouter = require('./Routes/validacionFormularios');
 const actualizarEdadesRouter = require('./Routes/actualizarEdades');
 const authGoogleRouter = require('./Routes/authGoogle');
+const fotosRouter = require('./Routes/fotos');
 
 const app = express();
 
@@ -44,7 +45,9 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
   credentials: true // Permitir cookies en CORS
 }));
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
+
 
 // Configurar sesiones (ANTES de Passport)
 app.use(session({
@@ -81,6 +84,7 @@ async function main() {
   app.use('/api/filiales', filialesRouter);
   app.use('/api/validacionFormularios', validacionRouter);
   app.use('/api/actualizarEdades', actualizarEdadesRouter);
+  app.use('/api/fotos', fotosRouter);
 
   // Ruta para verificar estado de autenticación (útil para el frontend)
   app.get('/api/auth/status', (req, res) => {
