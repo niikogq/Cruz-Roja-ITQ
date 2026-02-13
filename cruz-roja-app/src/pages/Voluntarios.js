@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DataGrid } from '@mui/x-data-grid';
+import { authFetch } from '../utils/authFetch'; 
 import Box from '@mui/material/Box';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -15,7 +17,9 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useTheme, useMediaQuery } from '@mui/material';
+import { COLORS } from '../utils/constants';
 import { API_ENDPOINTS } from '../config/api';
+import AddIcon from '@mui/icons-material/Add';
 
 const CALIDAD_OPTIONS = ["Activo", "Llamada"];
 const GENERO_OPTIONS = ["F", "M", "Otro"];
@@ -37,6 +41,7 @@ function excelDateToJSDate(serial) {
 }
 
 export default function Voluntarios() {
+  const navigate = useNavigate();
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState(null);
@@ -50,7 +55,7 @@ export default function Voluntarios() {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
-    fetch(API_ENDPOINTS.voluntarios)
+    authFetch(API_ENDPOINTS.voluntarios)
       .then(response => response.json())
       .then(data => {
         if (!Array.isArray(data) || data.length === 0) {
@@ -66,15 +71,14 @@ export default function Voluntarios() {
         setLoading(false);
       });
   }, []);
-
+  
   // Actualizar edades masivamente
   const handleActualizarEdades = async () => {
     setUpdatingEdades(true);
     setSnackbar({ open: false, message: '', severity: 'info' });
     try {
-      const response = await fetch('/api/actualizarEdades', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+      const response = await authFetch('/api/actualizarEdades', {
+        method: 'POST'
       });
       const result = await response.json();
 
@@ -102,9 +106,8 @@ export default function Voluntarios() {
   const handleCalidadChange = (id, newValue) => {
     setUpdatingId(id);
     const row = rows.find(r => r.id === id);
-    fetch(`/api/voluntarios/${row._id}`, {
+    authFetch(`/api/voluntarios/${row._id}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ "Calidad de voluntario": newValue })
     })
       .then(response => {
@@ -131,9 +134,8 @@ export default function Voluntarios() {
   const handleGeneroChange = (id, newValue) => {
     setUpdatingGeneroId(id);
     const row = rows.find(r => r.id === id);
-    fetch(`/api/voluntarios/${row._id}`, {
+    authFetch(`/api/voluntarios/${row._id}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ "Género": newValue })
     })
       .then(response => {
@@ -287,8 +289,22 @@ export default function Voluntarios() {
 
   return (
     <div>
-      {/* NUEVO: BOTÓN ACTUALIZAR EDADES */}
-      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end', pr: 2 }}>
+      {/* Botón Nuevo Voluntario */}
+      <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-end', gap: 2, pr: 2 }}>
+        <Button
+          variant="contained"
+          startIcon={<AddIcon />}
+          onClick={() => navigate('/voluntarios/nuevo')}
+          sx={{
+            backgroundColor: COLORS.primary,
+            '&:hover': { backgroundColor: COLORS.primaryDark },
+            boxShadow: '0 4px 12px rgba(156, 24, 33, 0.3)'
+          }}
+        >
+          Nuevo Voluntario
+        </Button>
+
+        {/* Botón Actualizar Edades */}
         <Button
           variant="contained"
           startIcon={<RefreshIcon />}
@@ -311,6 +327,7 @@ export default function Voluntarios() {
           )}
         </Button>
       </Box>
+
 
       {/* DataGrid responsive */}
       <Box

@@ -166,7 +166,9 @@ router.get('/google',
 router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: `${process.env.FRONTEND_URL}/login` }),
   (req, res) => {
-    res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    const userId = req.user.id;
+    console.log('✅ Callback exitoso, redirigiendo con token:', userId);
+    res.redirect(`${process.env.FRONTEND_URL}/?token=${userId}`);
   }
 );
 

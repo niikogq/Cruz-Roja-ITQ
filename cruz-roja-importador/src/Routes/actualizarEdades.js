@@ -1,15 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { MongoClient, ObjectId } = require('mongodb');
+const { ObjectId } = require('mongodb');
+const { isAuthenticated, hasRole } = require('../auth/authMiddleware');
 
-const MONGODB_URI = 'mongodb+srv://ngalloquinchen_db_user:cs9zcjsQEayMMCIm@cruzroja.twuyd12.mongodb.net/?appName=cruzroja';
-const DB_NAME = 'cruz_roja_app';
-
-router.post('/', async (req, res) => {
-  const client = new MongoClient(MONGODB_URI, { useUnifiedTopology: true });
+// POST - Actualizar edades y antigüedades (SOLO ADMIN)
+router.post('/', isAuthenticated, hasRole('admin'), async (req, res) => {
   try {
-    await client.connect();
-    const db = client.db(DB_NAME);
+    const db = req.app.locals.db;
     
     const voluntarios = await db.collection('Datos voluntarios').find({}).toArray();
     const hoy = new Date();
@@ -23,16 +20,16 @@ router.post('/', async (req, res) => {
       // Calcular Edad desde Fecha nacimiento (formato Excel)
       if (v['Fecha nacimiento']) {
         const fechaNacimiento = excelDateToJSDate(v['Fecha nacimiento']);
-        if (!isNaN(fechaNacimiento.getTime())) {
+        if (fechaNacimiento && !isNaN(fechaNacimiento.getTime())) {
           const edad = Math.floor((hoy - fechaNacimiento) / (365.25 * 24 * 60 * 60 * 1000));
-          updateDoc.Edad = Math.max(0, edad); // Evitar edades negativas
+          updateDoc.Edad = Math.max(0, edad);
         }
       }
       
       // Calcular Antigüedad desde Fecha de ingreso
       if (v['Fecha de ingreso']) {
         const fechaIngreso = excelDateToJSDate(v['Fecha de ingreso']);
-        if (!isNaN(fechaIngreso.getTime())) {
+        if (fechaIngreso && !isNaN(fechaIngreso.getTime())) {
           const antiguedad = Math.floor((hoy - fechaIngreso) / (365.25 * 24 * 60 * 60 * 1000));
           updateDoc['Antigüedad'] = Math.max(0, antiguedad);
         }
@@ -65,12 +62,10 @@ router.post('/', async (req, res) => {
   } catch (error) {
     console.error('Error actualizando edades:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
-  } finally {
-    await client.close();
   }
 });
 
-// Función para convertir fecha Excel
+// Función para convertir fecha Excel a JavaScript Date
 function excelDateToJSDate(serial) {
   try {
     const utc_days = Math.floor(serial - 25569);

@@ -6,7 +6,7 @@ import logoCruzRoja from '../assets/logo-cruz-roja.png'; // ajusta el nombre si 
 function Login() {
   const handleSuccess = async (credentialResponse) => {
     try {
-      const response = await fetch('/auth/google', {  // ← CAMBIO
+      const response = await fetch('/auth/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: credentialResponse.credential })
@@ -15,13 +15,19 @@ function Login() {
       const data = await response.json();
 
       if (data.success) {
+        // Guardar token y datos del usuario
         sessionStorage.setItem('token', data.token);
+        sessionStorage.setItem('user', JSON.stringify(data.user));
+        
+        console.log('✅ Login exitoso:', data.user);
+        
+        // Redirigir al dashboard
         window.location.href = '/';
       } else {
         alert('Error: ' + (data.message || 'No autorizado'));
       }
     } catch (error) {
-      console.error('Error al iniciar sesión:', error);
+      console.error('❌ Error al iniciar sesión:', error);
       alert('Error de conexión con el servidor');
     }
   };

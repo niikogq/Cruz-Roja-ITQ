@@ -6,15 +6,33 @@ const passport = require('passport');
 const path = require('path');
 require('dotenv').config();
 
-// Importar routers PRIMERO
+// Validar variables de entorno requeridas
+const requiredEnvVars = [
+  'MONGODB_URI',
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET',
+  'SESSION_SECRET',
+  'ADMIN_EMAIL'
+];
+
+const missingVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingVars.length > 0) {
+  console.error('❌ ERROR: Faltan variables de entorno requeridas:');
+  missingVars.forEach(varName => console.error(`   - ${varName}`));
+  console.error('\nRevisa tu archivo .env');
+  process.exit(1);
+}
+
+console.log('✅ Variables de entorno validadas correctamente');
+
+// Importar routers
 const filialesTotalsRouter = require('./Routes/filialesTotals');
 const voluntariosRouter = require('./Routes/voluntarios');
 const filialesRouter = require('./Routes/filiales');
 const validacionRouter = require('./Routes/validacionFormularios');
 const actualizarEdadesRouter = require('./Routes/actualizarEdades');
 const authGoogleRouter = require('./Routes/authGoogle');
-
-//const filialesJerarquicas = require('./Routes/filialesJerarquias');
 
 const app = express();
 
@@ -63,9 +81,6 @@ async function main() {
   app.use('/api/filiales', filialesRouter);
   app.use('/api/validacionFormularios', validacionRouter);
   app.use('/api/actualizarEdades', actualizarEdadesRouter);
-
-  //app.use('/api/exportarGoogleWorkspace', require('./Routes/exportarGoogleWorkspace'));
-  //app.use('/api/filialesJerarquicas', filialesJerarquicas);
 
   // Ruta para verificar estado de autenticación (útil para el frontend)
   app.get('/api/auth/status', (req, res) => {

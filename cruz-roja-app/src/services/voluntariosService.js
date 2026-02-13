@@ -1,18 +1,16 @@
 import { API_ENDPOINTS } from '../config/api';
-
-console.log('URL de voluntarios:', API_ENDPOINTS.voluntarios); // ← Agrega esto
+import { authFetch } from '../utils/authFetch';
 
 export const voluntariosService = {
   getAll: async () => {
-    const response = await fetch(API_ENDPOINTS.voluntarios);
+    const response = await authFetch(API_ENDPOINTS.voluntarios);
     if (!response.ok) throw new Error('Error al cargar voluntarios');
     return response.json();
   },
 
   updateCalidad: async (id, calidad) => {
-    const response = await fetch(`${API_ENDPOINTS.voluntarios}/${id}`, {
+    const response = await authFetch(`${API_ENDPOINTS.voluntarios}/${id}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ "Calidad de voluntario": calidad })
     });
     if (!response.ok) throw new Error('Error al actualizar calidad');
@@ -20,9 +18,8 @@ export const voluntariosService = {
   },
 
   updateGenero: async (id, genero) => {
-    const response = await fetch(`${API_ENDPOINTS.voluntarios}/${id}`, {
+    const response = await authFetch(`${API_ENDPOINTS.voluntarios}/${id}`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ "Género": genero })
     });
     if (!response.ok) throw new Error('Error al actualizar género');

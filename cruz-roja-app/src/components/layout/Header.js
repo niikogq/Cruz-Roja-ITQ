@@ -9,6 +9,7 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Avatar from '@mui/material/Avatar';
+import { authFetch } from '../../utils/authFetch';
 
 const HEADER_HEIGHT = 56;
 
@@ -37,11 +38,7 @@ const Header = ({ onToggleSidebar }) => {
         const token = sessionStorage.getItem('token');
         if (!token) return;
 
-        const response = await fetch('/auth/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const response = await authFetch('/auth/me');
 
         const data = await response.json();
         if (data.success) {

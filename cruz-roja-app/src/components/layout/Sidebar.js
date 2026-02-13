@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaHome, FaUserFriends, FaUniversity, FaCommentAlt, FaFileAlt } from 'react-icons/fa';
+import { FaHome, FaUserFriends, FaUniversity, FaCommentAlt, FaFileAlt, FaPhone } from 'react-icons/fa';
 import logo from '../../assets/logo-cruz-roja.png';
 
 import Drawer from '@mui/material/Drawer';
@@ -13,7 +13,9 @@ const menu = [
   { path: '/filiales', label: 'Datos filial', icon: <FaUniversity /> },
   { path: '/sugerencias', label: 'Sugerencias', icon: <FaCommentAlt /> },
   { path: '/validacion-formularios', label: 'Información Sede', icon: <FaFileAlt /> },
+  { path: '/contacto', label: 'Contacto', icon: <FaPhone /> },
 ];
+
 
 // SOLO el contenido visual del sidebar (logo + lista)
 const SidebarContent = ({ location, onItemClick }) => (

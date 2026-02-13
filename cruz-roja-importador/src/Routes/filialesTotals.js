@@ -1,15 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { MongoClient, ObjectId } = require('mongodb');
+const { isAuthenticated } = require('../auth/authMiddleware');
 
-const MONGODB_URI = 'mongodb+srv://ngalloquinchen_db_user:cs9zcjsQEayMMCIm@cruzroja.twuyd12.mongodb.net/?appName=cruzroja';
-const DB_NAME = 'cruz_roja_app';  
-
-router.get('/', async (req, res) => {
-  const client = new MongoClient(MONGODB_URI, { useUnifiedTopology: true });
+// GET - Obtener filiales con totales de voluntarios (PROTEGIDO)
+router.get('/', isAuthenticated, async (req, res) => {
   try {
-    await client.connect();
-    const db = client.db(DB_NAME);
+    const db = req.app.locals.db;
 
     const filialesAgregadas = await db.collection('Datos filial').aggregate([
       {
@@ -50,11 +46,9 @@ router.get('/', async (req, res) => {
     ]).toArray();
 
     res.json(filialesAgregadas);
-  } catch (err) {
-    console.error('Error en /api/filialesTotals:', err);
+  } catch (error) {
+    console.error('Error en /api/filialesTotals:', error);
     res.status(500).json({ error: 'Error obteniendo filiales con totales' });
-  } finally {
-    await client.close();
   }
 });
 

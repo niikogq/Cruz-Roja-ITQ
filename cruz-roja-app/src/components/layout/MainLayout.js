@@ -35,8 +35,9 @@ export const MainLayout = ({ children }) => {
         <main
           style={{
             padding: window.innerWidth < 600 ? 16 : 32,
-            marginTop: HEADER_HEIGHT + 16,
-            minHeight: `calc(100vh - ${HEADER_HEIGHT + 16}px)`
+            marginTop: HEADER_HEIGHT,
+            minHeight: `calc(100vh - ${HEADER_HEIGHT}px)`,
+            overflow: 'hidden'
           }}
         >
           {children}

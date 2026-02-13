@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { DataGrid } from '@mui/x-data-grid';
 import Box from '@mui/material/Box';
-import { API_ENDPOINTS } from '../config/api';  // ← NUEVO
+import { authFetch } from '../utils/authFetch';
+import { API_ENDPOINTS } from '../config/api';
 
 export default function ValidacionFormularios() {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${API_ENDPOINTS.filialesTotals.replace('/filialesTotals', '/validacionFormularios')}`)
+    authFetch(`${API_ENDPOINTS.filialesTotals.replace('/filialesTotals', '/validacionFormularios')}`)
       .then(res => res.json())
       .then(data => {
         const mappedRows = data.map((item, idx) => ({

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Doughnut, Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import { Box, Typography } from '@mui/material';
-import { API_ENDPOINTS } from '../config/api';  // ← NUEVO
+import { authFetch } from '../utils/authFetch';
+import { API_ENDPOINTS } from '../config/api';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -20,9 +21,9 @@ export default function Inicio() {
 
   useEffect(() => {
     Promise.all([
-      fetch(API_ENDPOINTS.voluntarios).then(res => res.json()),
-      fetch(API_ENDPOINTS.filiales).then(res => res.json())
-  ])
+      authFetch(API_ENDPOINTS.voluntarios).then(res => res.json()),
+      authFetch(API_ENDPOINTS.filiales).then(res => res.json())
+    ])
     .then(([voluntarios, filiales]) => {
       const nActivos = voluntarios.filter(v => v["Calidad de voluntario"] === 'Activo').length;
       const nLlamada = voluntarios.filter(v => v["Calidad de voluntario"] === 'Llamada').length;

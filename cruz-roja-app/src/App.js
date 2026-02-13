@@ -1,5 +1,5 @@
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { CircularProgress, Box } from '@mui/material';
 import { MainLayout } from './components/layout/MainLayout';
 
@@ -13,7 +13,9 @@ const Filiales = lazy(() => import('./pages/Filiales'));
 const FilialDetalle = lazy(() => import('./pages/FilialDetalle'));
 const Sugerencias = lazy(() => import('./pages/Sugerencias'));
 const ValidacionFormularios = lazy(() => import('./pages/validacionFormularios'));
+const Contacto = lazy(() => import('./pages/Contacto'));
 const Login = lazy(() => import('./pages/Login'));
+const VoluntariosNuevo = lazy(() => import('./pages/VoluntariosNuevo'));
 
 // Loading fallback component
 const LoadingFallback = () => (
@@ -27,15 +29,52 @@ const LoadingFallback = () => (
   </Box>
 );
 
+
 // Componente para proteger rutas
 const ProtectedRoute = ({ children }) => {
   const token = sessionStorage.getItem('token');
-  return token ? children : <Navigate to="/login" replace />;
+  
+  console.log('🔐 ProtectedRoute - Token:', token);
+  console.log('🔐 ProtectedRoute - Tiene token?', !!token);
+  
+  if (!token) {
+    console.log('❌ No hay token, redirigiendo a login...');
+    return <Navigate to="/login" replace />;
+  }
+  
+  console.log('✅ Token válido, mostrando contenido');
+  return children;
 };
+
+
+// Componente para manejar el callback de OAuth
+function OAuthHandler() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const token = urlParams.get('token');
+    
+    if (token) {
+      console.log('✅ Token recibido del callback:', token);
+      sessionStorage.setItem('token', token);
+      
+      // Esperar un momento antes de navegar
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 100);
+    }
+  }, [location, navigate]);
+
+  return null;
+}
+
 
 function App() {
   return (
     <Router>
+      <OAuthHandler />
       <Suspense fallback={<LoadingFallback />}>
         <Routes>
           {/* Ruta pública - Login SIN MainLayout */}
@@ -45,6 +84,11 @@ function App() {
           <Route path="/" element={
             <ProtectedRoute>
               <MainLayout><Inicio /></MainLayout>
+            </ProtectedRoute>
+          } />
+          <Route path="/voluntarios/nuevo" element={
+            <ProtectedRoute>
+              <MainLayout><VoluntariosNuevo /></MainLayout>
             </ProtectedRoute>
           } />
           <Route path="/voluntarios" element={
@@ -87,10 +131,16 @@ function App() {
               <MainLayout><ValidacionFormularios /></MainLayout>
             </ProtectedRoute>
           } />
+          <Route path="/contacto" element={
+            <ProtectedRoute>
+              <MainLayout><Contacto /></MainLayout>
+            </ProtectedRoute>
+          } />
         </Routes>
       </Suspense>
     </Router>
   );
 }
+
 
 export default App;
