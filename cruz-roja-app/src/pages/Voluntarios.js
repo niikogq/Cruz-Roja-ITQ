@@ -21,6 +21,7 @@ import { COLORS } from '../utils/constants';
 import { API_ENDPOINTS } from '../config/api';
 import AddIcon from '@mui/icons-material/Add';
 import { HojaDeVidaModal } from '../components/modals/HojaDeVidaModal';
+import { EditarVoluntarioModal } from '../components/modals/EditarVoluntarioModal'; 
 
 
 const CALIDAD_OPTIONS = ["Activo", "Llamada"];
@@ -51,6 +52,7 @@ export default function Voluntarios() {
   const [selectedVoluntario, setSelectedVoluntario] = useState(null);
   const [openModal, setOpenModal] = useState(false);
   const [openHojaVida, setOpenHojaVida] = useState(false);
+  const [openEditar, setOpenEditar] = useState(false);
   const [updatingEdades, setUpdatingEdades] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
 
@@ -504,11 +506,58 @@ export default function Voluntarios() {
                     {selectedVoluntario['Antigüedad'] || 'N/A'}
                   </Typography>
                 </Box>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Grupo Sanguíneo
+                  </Typography>
+                  <Typography variant="body1">
+                    {selectedVoluntario['Grupo sanguíneo'] || 'N/A'}
+                  </Typography>
+                </Box>
+                <Box>
+                </Box>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Contacto de Emergencia
+                  </Typography>
+                  <Typography variant="body1">
+                    {selectedVoluntario['Contacto de emergencia'] || 'N/A'}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Teléfono Contacto Emergencia
+                  </Typography>
+                  <Typography variant="body1">
+                    {selectedVoluntario['Teléfono contacto emergencia'] || 'N/A'}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Relación Contacto
+                  </Typography>
+                  <Typography variant="body1">
+                    {selectedVoluntario['Relación contacto emergencia'] || 'N/A'}
+                  </Typography>
+                </Box>
               </Box>
             </Box>
           )}
         </DialogContent>
           <DialogActions>
+            <Button 
+              onClick={() => setOpenEditar(true)}
+              variant="outlined"
+              sx={{ 
+                borderColor: COLORS.primary,
+                color: COLORS.primary,
+                '&:hover': {
+                  backgroundColor: 'rgba(156, 24, 33, 0.04)'
+                }
+              }}
+            >
+              ✏️ Editar Información
+            </Button>
             <Button 
               onClick={() => setOpenHojaVida(true)}
               variant="outlined"
@@ -542,6 +591,17 @@ export default function Voluntarios() {
         onClose={() => setOpenHojaVida(false)}
         voluntarioId={selectedVoluntario?._id}
         voluntarioData={selectedVoluntario}
+      />
+      {/* Modal de Editar Voluntario */}
+      <EditarVoluntarioModal 
+        open={openEditar}
+        onClose={() => setOpenEditar(false)}
+        voluntarioId={selectedVoluntario?._id}
+        voluntarioData={selectedVoluntario}
+        onSuccess={() => {
+          setOpenEditar(false);
+          window.location.reload();
+        }}
       />
     </div>
   );

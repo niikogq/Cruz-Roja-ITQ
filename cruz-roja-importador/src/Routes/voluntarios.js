@@ -43,8 +43,6 @@ router.get('/', isAuthenticated, async (req, res) => {
   }
 });
 
-
-
 // PATCH - Actualizar un voluntario (PROTEGIDO + VALIDADO)
 router.patch('/:id', isAuthenticated, async (req, res) => {
   try {
@@ -54,13 +52,15 @@ router.patch('/:id', isAuthenticated, async (req, res) => {
     // Lista blanca de campos permitidos
     const camposPermitidos = [
       'Nombre', 'Apellido', 'RUT', 'Edad', 'Género', 'Dirección',
-      'Comuna', 'Teléfono', 'Email', 'Filial', 'Sede', 'Region',
-      'Calidad de voluntario', 'Fecha nacimiento', 'Fecha de ingreso',
-      'Antigüedad', 'Comentarios', 'Foto', 'Comité regional', 'Alergia',
-      'Enfermedades', 'Títulos aprobados', 'Cursos aprobados', 'Sanciones',
-      'Reconocimiento anual'
+      'Comuna', 'Teléfono', 'Telefono', 'Email', 'Correo', 'Direccion', 
+      'Filial', 'Sede', 'Region', 'Calidad de voluntario', 'Cargo',
+      'Estado civil', 'Nivel de escolaridad',
+      'Fecha nacimiento', 'Fecha de ingreso', 'Antigüedad', 'Comentarios', 
+      'Foto', 'Comité regional', 'Alergia', 'Enfermedades', 
+      'Títulos aprobados', 'Cursos aprobados', 'Sanciones',
+      'Reconocimiento anual', 'Contacto de emergencia', 
+      'Teléfono contacto emergencia', 'Relación contacto emergencia'
     ];
-
     
     // Filtrar solo campos permitidos
     const updateFields = {};
@@ -95,7 +95,6 @@ router.patch('/:id', isAuthenticated, async (req, res) => {
   }
 });
 
-
 // Función helper para convertir fecha de string a Excel date
 function convertirFechaExcel(fechaStr) {
   if (!fechaStr) return null;
@@ -112,7 +111,6 @@ function convertirFechaExcel(fechaStr) {
   
   return null;
 }
-
 
 // Función helper para calcular edad
 function calcularEdad(fechaNacimientoStr) {
@@ -156,7 +154,6 @@ function calcularEdad(fechaNacimientoStr) {
   return Math.max(0, edad);
 }
 
-
 // POST - Crear nuevo voluntario
 router.post('/crear', isAuthenticated, async (req, res) => {
   try {
@@ -180,6 +177,7 @@ router.post('/crear', isAuthenticated, async (req, res) => {
       'Apellidos voluntarios': req.body['Apellidos voluntarios'],
       'Fecha nacimiento': convertirFechaExcel(req.body['Fecha nacimiento']),
       Nacionalidad: req.body.Nacionalidad,
+      'Grupo sanguíneo': req.body['Grupo sanguíneo'],
       'Estado civil': req.body['Estado civil'],
       Género: req.body.Género,
       Telefono: req.body.Telefono,
@@ -274,6 +272,5 @@ router.post('/crear', isAuthenticated, async (req, res) => {
     });
   }
 });
-
 
 module.exports = router;

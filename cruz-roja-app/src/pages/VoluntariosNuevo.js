@@ -16,6 +16,7 @@ export default function VoluntariosNuevo() {
     RUT: '',
     'Apellidos voluntarios': '',
     'Nombres voluntario': '',
+    'Grupo sanguíneo': '',
     'Fecha nacimiento': '',
     Nacionalidad: '',
     'Estado civil': '',
@@ -58,6 +59,11 @@ export default function VoluntariosNuevo() {
     // Formatear RUT automáticamente
     if (name === 'RUT') {
       formattedValue = formatearRUT(value);
+    }
+    
+    // Validar que Teléfono solo tenga números
+    if (name === 'Telefono' || name === 'Teléfono contacto emergencia') {
+      formattedValue = value.replace(/\D/g, ''); // Remover todo lo que no sea número
     }
 
     setFormData(prev => ({
@@ -127,6 +133,26 @@ export default function VoluntariosNuevo() {
     }
     if (!formData.Género) {
       setSnackbar({ open: true, message: 'El género es requerido', severity: 'error' });
+      return false;
+    }
+    if (!formData.Telefono) {
+      setSnackbar({ open: true, message: 'El teléfono es requerido', severity: 'error' });
+      return false;
+    }
+    if (!formData.Correo) {
+      setSnackbar({ open: true, message: 'El correo electrónico es requerido', severity: 'error' });
+      return false;
+    }
+    if (!formData['Contacto de emergencia']) {
+      setSnackbar({ open: true, message: 'El nombre del contacto de emergencia es requerido', severity: 'error' });
+      return false;
+    }
+    if (!formData['Teléfono contacto emergencia']) {
+      setSnackbar({ open: true, message: 'El teléfono del contacto de emergencia es requerido', severity: 'error' });
+      return false;
+    }
+    if (!formData['Relación contacto emergencia']) {
+      setSnackbar({ open: true, message: 'La relación del contacto de emergencia es requerida', severity: 'error' });
       return false;
     }
     if (!formData.Filial) {
@@ -263,6 +289,25 @@ export default function VoluntariosNuevo() {
             </FormControl>
 
             <FormControl fullWidth sx={{ mb: 2 }}>
+              <InputLabel>Grupo Sanguíneo</InputLabel>
+              <Select
+                name="Grupo sanguíneo"
+                value={formData['Grupo sanguíneo']}
+                onChange={handleChange}
+                label="Grupo Sanguíneo"
+              >
+                <MenuItem value="A+">A+</MenuItem>
+                <MenuItem value="A-">A-</MenuItem>
+                <MenuItem value="B+">B+</MenuItem>
+                <MenuItem value="B-">B-</MenuItem>
+                <MenuItem value="AB+">AB+</MenuItem>
+                <MenuItem value="AB-">AB-</MenuItem>
+                <MenuItem value="O+">O+</MenuItem>
+                <MenuItem value="O-">O-</MenuItem>
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth sx={{ mb: 2 }}>
               <InputLabel>Nacionalidad</InputLabel>
               <Select
                 name="Nacionalidad"
@@ -298,6 +343,7 @@ export default function VoluntariosNuevo() {
               value={formData.Telefono}
               onChange={handleChange}
               type="tel"
+              required
               sx={{ mb: 2 }}
             />
 
@@ -308,6 +354,7 @@ export default function VoluntariosNuevo() {
               value={formData.Correo}
               onChange={handleChange}
               type="email"
+              required
               sx={{ mb: 2 }}
             />
 
@@ -347,6 +394,7 @@ export default function VoluntariosNuevo() {
               name="Contacto de emergencia"
               value={formData['Contacto de emergencia']}
               onChange={handleChange}
+              required
               sx={{ mb: 2 }}
             />
 
@@ -357,6 +405,7 @@ export default function VoluntariosNuevo() {
               value={formData['Teléfono contacto emergencia']}
               onChange={handleChange}
               type="tel"
+              required
               sx={{ mb: 2 }}
             />
 
@@ -366,6 +415,7 @@ export default function VoluntariosNuevo() {
               name="Relación contacto emergencia"
               value={formData['Relación contacto emergencia']}
               onChange={handleChange}
+              required
               sx={{ mb: 4 }}
             />
 
