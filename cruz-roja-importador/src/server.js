@@ -34,6 +34,7 @@ const validacionRouter = require('./Routes/validacionFormularios');
 const actualizarEdadesRouter = require('./Routes/actualizarEdades');
 const authGoogleRouter = require('./Routes/authGoogle');
 const fotosRouter = require('./Routes/fotos');
+const { iniciarCronJobs } = require('./services/cronService');
 
 const app = express();
 
@@ -73,6 +74,8 @@ async function main() {
   await client.connect();
   const db = client.db('cruz_roja_app');
   app.locals.db = db;
+
+  iniciarCronJobs(db);
 
   passport.setDB(db);
   app.locals.passport = passport;

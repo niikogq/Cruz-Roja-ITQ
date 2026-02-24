@@ -11,6 +11,8 @@ export default function VoluntariosNuevo() {
   const [loading, setLoading] = useState(false);
   const [filiales, setFiliales] = useState([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
+  const [comites, setComites] = useState([]); 
+  const [filialesFiltradas, setFilialesFiltradas] = useState([]); 
 
   const [formData, setFormData] = useState({
     RUT: '',
@@ -25,6 +27,7 @@ export default function VoluntariosNuevo() {
     Direccion: '',
     Correo: '',
     'Nivel de escolaridad': '',
+    'Comité Regional': '',
     Filial: '',
     'Calidad de voluntario': 'Activo',
     Cargo: 'Voluntario',
@@ -34,14 +37,20 @@ export default function VoluntariosNuevo() {
   });
 
   useEffect(() => {
-    const cargarFiliales = async () => {
+    const cargarDatos = async () => {
       try {
         const response = await authFetch('/api/filialesTotals');
         const data = await response.json();
-        const filialesUnicas = [...new Set(data.map(f => f.Filial))].sort();
-        setFiliales(filialesUnicas);
+        
+        // Guardar todas las filiales con su comité
+        setFiliales(data);
+        
+        // Extraer comités únicos
+        const comitesUnicos = [...new Set(data.map(f => f['Sede regional']))].filter(Boolean).sort();
+        setComites(comitesUnicos);
+        
       } catch (error) {
-        console.error('Error cargando filiales:', error);
+        console.error('Error cargando datos:', error);
         setSnackbar({
           open: true,
           message: 'Error al cargar las filiales',
@@ -49,8 +58,28 @@ export default function VoluntariosNuevo() {
         });
       }
     };
-    cargarFiliales();
+    cargarDatos();
   }, []);
+
+  // Manejar cambio de Comité Regional
+  const handleComiteChange = (e) => {
+    const comiteSeleccionado = e.target.value;
+    
+    setFormData(prev => ({
+      ...prev,
+      'Comité regional': comiteSeleccionado,
+      Filial: '' // Resetear filial cuando cambia comité
+    }));
+    
+    // Filtrar filiales según el comité seleccionado
+    const filialesDelComite = filiales
+      .filter(f => f['Sede regional'] === comiteSeleccionado)
+      .map(f => f.Filial)
+      .sort();
+    
+    setFilialesFiltradas(filialesDelComite);
+  };
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -63,7 +92,7 @@ export default function VoluntariosNuevo() {
     
     // Validar que Teléfono solo tenga números
     if (name === 'Telefono' || name === 'Teléfono contacto emergencia') {
-      formattedValue = value.replace(/\D/g, ''); // Remover todo lo que no sea número
+      formattedValue = value.replace(/\D/g, '');
     }
 
     setFormData(prev => ({
@@ -425,6 +454,27 @@ export default function VoluntariosNuevo() {
             </Typography>
 
             <FormControl fullWidth required sx={{ mb: 2 }}>
+              <InputLabel>Comité Regional</InputLabel>
+              <Select
+                name="Comité regional"
+                value={formData['Comité regional']}
+                onChange={handleComiteChange}
+                label="Comité Regional"
+              >
+                {comites.map(comite => (
+                  <MenuItem key={comite} value={comite}>
+                    {comite}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl 
+              fullWidth 
+              required 
+              sx={{ mb: 2 }}
+              disabled={!formData['Comité regional']}
+            >
               <InputLabel>Filial</InputLabel>
               <Select
                 name="Filial"
@@ -432,7 +482,7 @@ export default function VoluntariosNuevo() {
                 onChange={handleChange}
                 label="Filial"
               >
-                {filiales.map(filial => (
+                {filialesFiltradas.map(filial => (
                   <MenuItem key={filial} value={filial}>
                     {filial}
                   </MenuItem>

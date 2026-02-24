@@ -14,7 +14,6 @@ import {
   CircularProgress,
   Alert,
   Snackbar,
-  Box
 } from '@mui/material';
 import { COLORS } from '../../utils/constants';
 import { authFetch } from '../../utils/authFetch';
@@ -28,7 +27,6 @@ export const EditarVoluntarioModal = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
-  
   const [formData, setFormData] = useState({
     Telefono: '',
     Correo: '',
@@ -42,6 +40,9 @@ export const EditarVoluntarioModal = ({
     'Teléfono contacto emergencia': '',
     'Relación contacto emergencia': ''
   });
+  const [comites, setComites] = useState([]);
+  const [todasFiliales, setTodasFiliales] = useState([]);
+  const [filialesFiltradas, setFilialesFiltradas] = useState([]);
 
   // Actualizar formData cuando cambie voluntarioData
   React.useEffect(() => {
@@ -62,6 +63,40 @@ export const EditarVoluntarioModal = ({
     }
   }, [voluntarioData, open]);
 
+  // Cargar comités y filiales al abrir el modal
+  React.useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        const response = await authFetch('/api/filialesTotals');
+        const data = await response.json();
+        
+        // Guardar todas las filiales
+        setTodasFiliales(data);
+        
+        // Extraer comités únicos
+        const comitesUnicos = [...new Set(data.map(f => f['Sede regional']))].filter(Boolean).sort();
+        setComites(comitesUnicos);
+        
+        // Si ya tiene comité seleccionado, filtrar filiales
+        if (voluntarioData?.['Comité regional']) {
+          const filialesDelComite = data
+            .filter(f => f['Sede regional'] === voluntarioData['Comité regional'])
+            .map(f => f.Filial)
+            .sort();
+          setFilialesFiltradas(filialesDelComite);
+        }
+        
+      } catch (error) {
+        console.error('Error cargando datos:', error);
+      }
+    };
+    
+    if (open) {
+      cargarDatos();
+    }
+  }, [open, voluntarioData]);
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     let formattedValue = value;
@@ -75,6 +110,24 @@ export const EditarVoluntarioModal = ({
       ...prev,
       [name]: formattedValue
     }));
+  };
+
+  const handleComiteChange = (e) => {
+    const comiteSeleccionado = e.target.value;
+    
+    setFormData(prev => ({
+      ...prev,
+      'Comité regional': comiteSeleccionado,
+      Filial: '' // Resetear filial cuando cambia comité
+    }));
+    
+    // Filtrar filiales según el comité seleccionado
+    const filialesDelComite = todasFiliales
+      .filter(f => f['Sede regional'] === comiteSeleccionado)
+      .map(f => f.Filial)
+      .sort();
+    
+    setFilialesFiltradas(filialesDelComite);
   };
 
   const handleSubmit = async () => {
@@ -164,14 +217,41 @@ export const EditarVoluntarioModal = ({
           🏥 Datos Institucionales
         </Typography>
 
-        <TextField
-          fullWidth
-          label="Filial"
-          name="Filial"
-          value={formData.Filial}
-          onChange={handleChange}
+        <FormControl fullWidth sx={{ mb: 2 }}>
+          <InputLabel>Comité Regional</InputLabel>
+          <Select
+            name="Comité regional"
+            value={formData['Comité regional']}
+            onChange={handleComiteChange}
+            label="Comité Regional"
+          >
+            {comites.map(comite => (
+              <MenuItem key={comite} value={comite}>
+                {comite}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl 
+          fullWidth 
           sx={{ mb: 2 }}
-        />
+          disabled={!formData['Comité regional']}
+        >
+          <InputLabel>Filial</InputLabel>
+          <Select
+            name="Filial"
+            value={formData.Filial}
+            onChange={handleChange}
+            label="Filial"
+          >
+            {filialesFiltradas.map(filial => (
+              <MenuItem key={filial} value={filial}>
+                {filial}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Calidad de Voluntario</InputLabel>

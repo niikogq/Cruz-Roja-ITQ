@@ -1,5 +1,5 @@
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const { getUserOrgUnitPath, determinarRol } = require('../services/directoryService'); // NUEVO
+const { getUserOrgUnitPath, determinarRol } = require('../services/directoryService');
 require('dotenv').config();
 
 module.exports = function(passport) {
@@ -19,14 +19,14 @@ module.exports = function(passport) {
           const email = profile.emails[0].value;
           const googleId = profile.id;
 
-          // NUEVO: Verificar dominio @cruzroja.cl
+          //Verificar dominio @cruzroja.cl
           if (!email.endsWith('@cruzroja.cl')) {
             return done(null, false, { 
               message: 'Solo usuarios con correo @cruzroja.cl pueden acceder' 
             });
           }
 
-          // NUEVO: Obtener orgUnitPath y determinar rol
+          //Obtener orgUnitPath y determinar rol
           let rolInfo = null;
           let orgUnitPath = null;
           

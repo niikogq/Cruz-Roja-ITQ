@@ -186,10 +186,11 @@ router.post('/crear', isAuthenticated, async (req, res) => {
       'Nivel de escolaridad': req.body['Nivel de escolaridad'],
       
       // Datos de la Cruz Roja
+      'Comité regional': req.body['Comité regional'],
       Filial: req.body.Filial,
       'Calidad de voluntario': req.body['Calidad de voluntario'],
       Cargo: req.body.Cargo || 'Voluntario',
-      
+
       // Contacto de emergencia
       'Contacto de emergencia': req.body['Contacto de emergencia'],
       'Teléfono contacto emergencia': req.body['Teléfono contacto emergencia'],
@@ -272,5 +273,80 @@ router.post('/crear', isAuthenticated, async (req, res) => {
     });
   }
 });
+    // DELETE - Eliminar un voluntario (solo Admin, Sede Regional y Presidente)
+    router.delete('/:id', isAuthenticated, async (req, res) => {
+      try {
+        const db = req.app.locals.db;
+        const { id } = req.params;
+
+        if (!ObjectId.isValid(id)) {
+          return res.status(400).json({ error: 'ID inválido' });
+        }
+
+        // Obtener el voluntario antes de eliminarlo
+        const voluntario = await db.collection('Datos voluntarios').findOne({ _id: new ObjectId(id) });
+
+        if (!voluntario) {
+          return res.status(404).json({ error: 'Voluntario no encontrado' });
+        }
+
+        // Validar permisos según rol
+        if (req.user.rol === 'presidente') {
+          // Presidente solo puede eliminar voluntarios de su filial
+          if (voluntario.Filial !== req.user.filial) {
+            return res.status(403).json({ 
+              error: 'No tiene permisos para eliminar voluntarios de otra filial' 
+            });
+          }
+        }
+
+        if (req.user.rol === 'sede_regional') {
+          // Sede Regional solo puede eliminar voluntarios de su región
+          const filiales = await db.collection('Datos filial').find({ 
+            'Sede regional': req.user.region 
+          }).toArray();
+          
+          const nombreFiliales = filiales.map(f => f.Filial);
+          
+          if (!nombreFiliales.includes(voluntario.Filial)) {
+            return res.status(403).json({ 
+              error: 'No tiene permisos para eliminar voluntarios de otra región' 
+            });
+          }
+        }
+
+        // Admin puede eliminar cualquiera
+
+        // Eliminar de la BD
+        const result = await db.collection('Datos voluntarios').deleteOne({ _id: new ObjectId(id) });
+
+        if (result.deletedCount === 0) {
+          return res.status(404).json({ error: 'Voluntario no encontrado' });
+        }
+
+        console.log('✅ Voluntario eliminado:', {
+          id: id,
+          nombre: voluntario['Nombres voluntario'],
+          rut: voluntario.RUT,
+          filial: voluntario.Filial,
+          eliminadoPor: req.user.email
+        });
+
+        res.json({ 
+          mensaje: 'Voluntario eliminado exitosamente',
+          voluntario: {
+            nombre: voluntario['Nombres voluntario'],
+            rut: voluntario.RUT
+          }
+        });
+
+      } catch (error) {
+        console.error('❌ Error eliminando voluntario:', error);
+        res.status(500).json({ 
+          error: 'Error eliminando voluntario',
+          message: error.message 
+        });
+      }
+    });
 
 module.exports = router;

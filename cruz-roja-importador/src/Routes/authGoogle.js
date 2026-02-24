@@ -1,7 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 const { OAuth2Client } = require('google-auth-library');
-const { getUserOrgUnitPath, determinarRol } = require('../services/directoryService'); // NUEVO
+const { getUserOrgUnitPath, determinarRol } = require('../services/directoryService');
 const router = express.Router();
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -26,7 +26,7 @@ router.post('/google', async (req, res) => {
       });
     }
     
-    // NUEVO: Logs detallados
+    //Logs detallados
     let rolInfo = null;
     let orgUnitPath = null;
     
@@ -142,9 +142,9 @@ router.get('/me', async (req, res) => {
         email: usuario.email,
         nombre: usuario.nombre,
         foto: usuario.foto,
-        rol: usuario.rol,           // NUEVO
-        region: usuario.region,     // NUEVO
-        filial: usuario.filial      // NUEVO
+        rol: usuario.rol,
+        region: usuario.region,
+        filial: usuario.filial
       }
     });
 

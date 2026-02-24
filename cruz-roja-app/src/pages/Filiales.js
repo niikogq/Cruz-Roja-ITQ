@@ -42,7 +42,7 @@ export default function Filiales() {
     };
   }, []);
 
-  // ← NUEVO: Función para navegar a detalle
+  //Función para navegar a detalle
   const handleVerDetalles = (row) => {
     navigate(`/filial/${encodeURIComponent(row.Filial)}`);
   };

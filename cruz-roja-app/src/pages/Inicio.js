@@ -14,7 +14,6 @@ export default function Inicio() {
   const [totalFiliales, setTotalFiliales] = useState(0);
   const [voluntariosPorFilial, setVoluntariosPorFilial] = useState([]);
   const [promedioEdad, setPromedioEdad] = useState(0);
-  // NUEVO: Estados para género
   const [hombres, setHombres] = useState(0);
   const [mujeres, setMujeres] = useState(0);
   const [otros, setOtros] = useState(0);

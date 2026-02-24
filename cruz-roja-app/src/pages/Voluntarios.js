@@ -13,7 +13,6 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
 import Typography from '@mui/material/Typography';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 import { useTheme, useMediaQuery } from '@mui/material';
@@ -53,8 +52,9 @@ export default function Voluntarios() {
   const [openModal, setOpenModal] = useState(false);
   const [openHojaVida, setOpenHojaVida] = useState(false);
   const [openEditar, setOpenEditar] = useState(false);
-  const [updatingEdades, setUpdatingEdades] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -76,37 +76,6 @@ export default function Voluntarios() {
         setLoading(false);
       });
   }, []);
-  
-  // Actualizar edades masivamente
-  const handleActualizarEdades = async () => {
-    setUpdatingEdades(true);
-    setSnackbar({ open: false, message: '', severity: 'info' });
-    try {
-      const response = await authFetch('/api/actualizarEdades', {
-        method: 'POST'
-      });
-      const result = await response.json();
-
-      setSnackbar({
-        open: true,
-        message: result.mensaje || 'Actualización completada',
-        severity: response.ok ? 'success' : 'error'
-      });
-
-      if (response.ok) {
-        setTimeout(() => window.location.reload(), 1500);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      setSnackbar({
-        open: true,
-        message: 'Error al actualizar edades. Verifica que el backend esté corriendo.',
-        severity: 'error'
-      });
-    } finally {
-      setUpdatingEdades(false);
-    }
-  };
 
   const handleCalidadChange = (id, newValue) => {
     setUpdatingId(id);
@@ -172,6 +141,47 @@ export default function Voluntarios() {
   const handleCloseModal = () => {
     setOpenModal(false);
     setSelectedVoluntario(null);
+  };
+
+  const handleEliminarVoluntario = async () => {
+    if (!selectedVoluntario?._id) return;
+    
+    setDeleting(true);
+    
+    try {
+      const response = await authFetch(`/api/voluntarios/${selectedVoluntario._id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        setSnackbar({
+          open: true,
+          message: '✅ Voluntario eliminado exitosamente',
+          severity: 'success'
+        });
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        const error = await response.json();
+        setSnackbar({
+          open: true,
+          message: error.error || 'Error al eliminar voluntario',
+          severity: 'error'
+        });
+      }
+    } catch (error) {
+      console.error('Error eliminando:', error);
+      setSnackbar({
+        open: true,
+        message: 'Error al eliminar voluntario',
+        severity: 'error'
+      });
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(false);
+    }
   };
 
   const columns = [
@@ -307,29 +317,6 @@ export default function Voluntarios() {
           }}
         >
           Nuevo Voluntario
-        </Button>
-
-        {/* Botón Actualizar Edades */}
-        <Button
-          variant="contained"
-          startIcon={<RefreshIcon />}
-          onClick={handleActualizarEdades}
-          disabled={updatingEdades}
-          sx={{
-            backgroundColor: '#9c1821',
-            '&:hover': { backgroundColor: '#7a1419' },
-            boxShadow: '0 4px 12px rgba(156, 24, 33, 0.3)'
-          }}
-          size="small"
-        >
-          {updatingEdades ? (
-            <>
-              <CircularProgress size={20} sx={{ mr: 1, color: 'white' }} />
-              Actualizando...
-            </>
-          ) : (
-            'Actualizar Edades y Antigüedad'
-          )}
         </Button>
       </Box>
 
@@ -546,6 +533,20 @@ export default function Voluntarios() {
         </DialogContent>
           <DialogActions>
             <Button 
+              onClick={() => setConfirmDelete(true)}
+              variant="outlined"
+              sx={{ 
+                borderColor: 'red',
+                color: 'red',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 0, 0, 0.04)',
+                  borderColor: 'darkred'
+                }
+              }}
+            >
+              🗑️ Eliminar
+            </Button>
+            <Button 
               onClick={() => setOpenEditar(true)}
               variant="outlined"
               sx={{ 
@@ -603,6 +604,44 @@ export default function Voluntarios() {
           window.location.reload();
         }}
       />
+      
+      {/* Diálogo de confirmación de eliminación */}
+      <Dialog
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        maxWidth="sm"
+      >
+        <DialogTitle sx={{ bgcolor: 'red', color: '#fff', fontWeight: 700 }}>
+          ⚠️ Confirmar Eliminación
+        </DialogTitle>
+        <DialogContent sx={{ mt: 2 }}>
+          <Typography>
+            ¿Estás seguro que deseas eliminar a <strong>{selectedVoluntario?.['Nombres voluntario']} {selectedVoluntario?.['Apellidos voluntarios']}</strong>?
+          </Typography>
+          <Typography sx={{ mt: 2, color: 'red', fontWeight: 600 }}>
+            Esta acción NO se puede deshacer.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button 
+            onClick={() => setConfirmDelete(false)}
+            disabled={deleting}
+          >
+            Cancelar
+          </Button>
+          <Button 
+            onClick={handleEliminarVoluntario}
+            variant="contained"
+            disabled={deleting}
+            sx={{ 
+              bgcolor: 'red',
+              '&:hover': { bgcolor: 'darkred' }
+            }}
+          >
+            {deleting ? <CircularProgress size={20} /> : 'Sí, Eliminar'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }

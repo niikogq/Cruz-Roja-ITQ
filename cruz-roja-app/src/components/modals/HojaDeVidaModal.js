@@ -1,12 +1,35 @@
 import React, { useState } from 'react';
-import {Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Box, Typography, Divider, CircularProgress, Alert, Snackbar, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton } from '@mui/material';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Box,
+  Typography,
+  Divider,
+  CircularProgress,
+  Alert,
+  Snackbar,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  IconButton,
+  Tabs,
+  Tab,
+  Avatar
+} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { COLORS } from '../../utils/constants';
-import { authFetch } from '../../utils/authFetch';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import DownloadIcon from '@mui/icons-material/Download';
-
+import { COLORS } from '../../utils/constants';
+import { authFetch } from '../../utils/authFetch';
 
 export const HojaDeVidaModal = ({ 
   open, 
@@ -16,6 +39,7 @@ export const HojaDeVidaModal = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
+  const [tabValue, setTabValue] = useState(0);
   
   const [formData, setFormData] = useState({
     fotoId: '',
@@ -27,25 +51,24 @@ export const HojaDeVidaModal = ({
     Sanciones: [],
     'Reconocimiento anual': [],
     Comentarios: ''
-    });
+  });
 
-    // Actualizar formData cuando cambie voluntarioData
-    React.useEffect(() => {
-        if (voluntarioData) {
-            setFormData({
-            fotoId: voluntarioData.fotoId || '',
-            'Comité regional': voluntarioData['Comité regional'] || '',
-            Alergia: voluntarioData.Alergia || '',
-            Enfermedades: voluntarioData.Enfermedades || '',
-            'Títulos aprobados': voluntarioData['Títulos aprobados'] || [],
-            'Cursos aprobados': voluntarioData['Cursos aprobados'] || [],
-            Sanciones: voluntarioData.Sanciones || [],
-            'Reconocimiento anual': voluntarioData['Reconocimiento anual'] || [],
-            Comentarios: voluntarioData.Comentarios || ''
-            });
-        }
-    }, [voluntarioData, open]);
-
+  // Actualizar formData cuando cambie voluntarioData
+  React.useEffect(() => {
+    if (voluntarioData) {
+      setFormData({
+        fotoId: voluntarioData.fotoId || '',
+        'Comité regional': voluntarioData['Comité regional'] || '',
+        Alergia: voluntarioData.Alergia || '',
+        Enfermedades: voluntarioData.Enfermedades || '',
+        'Títulos aprobados': voluntarioData['Títulos aprobados'] || [],
+        'Cursos aprobados': voluntarioData['Cursos aprobados'] || [],
+        Sanciones: voluntarioData.Sanciones || [],
+        'Reconocimiento anual': voluntarioData['Reconocimiento anual'] || [],
+        Comentarios: voluntarioData.Comentarios || ''
+      });
+    }
+  }, [voluntarioData, open]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -385,422 +408,529 @@ export const HojaDeVidaModal = ({
 };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle sx={{ bgcolor: COLORS.primary, color: '#fff', fontWeight: 700 }}>
         📄 Hoja de Vida del Voluntario
       </DialogTitle>
 
-      <DialogContent sx={{ mt: 2, maxHeight: '70vh', overflowY: 'auto' }}>
-        
-        {/* Foto */}
-        <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 2 }}>
-          📷 Foto
-        </Typography>
-        <Box sx={{ mb: 4, p: 2, border: `1px solid ${COLORS.primary}`, borderRadius: 1 }}>
-          {formData.fotoId ? (
-            <Box sx={{ mb: 2 }}>
-                <img 
-                src={`/api/fotos/voluntarios/${voluntarioId}/foto`}
-                alt="Foto voluntario" 
-                style={{ maxWidth: '200px', maxHeight: '200px', borderRadius: 8 }} 
-                />
-            </Box>
-            ) : (
-            <Box sx={{ mb: 2, color: '#999' }}>
-                Sin foto de perfil
-            </Box>
-            )}
-
-          <Button
-            variant="contained"
-            component="label"
-            sx={{ backgroundColor: COLORS.primary }}
-          >
-            Cambiar Foto
-            <input
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={handleFotoChange}
-            />
-          </Button>
-        </Box>
-
-        {/* Datos Institucionales */}
-        <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 2 }}>
-          🏢 Datos Institucionales
-        </Typography>
-        <TextField
-          fullWidth
-          label="Comité Regional"
-          name="Comité regional"
-          value={formData['Comité regional']}
-          onChange={handleChange}
-          sx={{ mb: 4 }}
-        />
-
-        <Divider sx={{ my: 2 }} />
-
-        {/* Datos Personales - Salud */}
-        <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 2 }}>
-          🏥 Datos Personales - Salud
-        </Typography>
-        <TextField
-          fullWidth
-          label="Alergia"
-          name="Alergia"
-          value={formData.Alergia}
-          onChange={handleChange}
-          multiline
-          rows={2}
-          sx={{ mb: 2 }}
-        />
-        <TextField
-          fullWidth
-          label="Enfermedades"
-          name="Enfermedades"
-          value={formData.Enfermedades}
-          onChange={handleChange}
-          multiline
-          rows={2}
-          sx={{ mb: 4 }}
-        />
-
-        <Divider sx={{ my: 2 }} />
-
-        {/* Títulos Aprobados */}
-        <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 2 }}>
-          📜 Títulos Aprobados
-        </Typography>
-        <TableContainer component={Paper} sx={{ mb: 2 }}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: COLORS.primary }}>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Título</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Entregado por</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Código</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Documento</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Acciones</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-                {formData['Títulos aprobados'].map((titulo, index) => (
-                    <TableRow key={index}>
-                    <TableCell>
-                        <TextField
-                        size="small"
-                        value={titulo.titulo || ''}
-                        onChange={(e) => handleTituloChange(index, 'titulo', e.target.value)}
-                        />
-                    </TableCell>
-                    <TableCell>
-                        <TextField
-                        size="small"
-                        value={titulo.entregadoPor || ''}
-                        onChange={(e) => handleTituloChange(index, 'entregadoPor', e.target.value)}
-                        />
-                    </TableCell>
-                    <TableCell>
-                        <TextField
-                        size="small"
-                        value={titulo.codigo || ''}
-                        onChange={(e) => handleTituloChange(index, 'codigo', e.target.value)}
-                        />
-                    </TableCell>
-                    <TableCell>
-                        {titulo.documentoId ? (
-                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-                            <IconButton
-                                size="small"
-                                onClick={() => handleDescargarDocumento(titulo.documentoId, titulo.nombreArchivo)}
-                                sx={{ color: COLORS.primary }}
-                                >
-                                <DownloadIcon />
-                            </IconButton>
-                            <Typography variant="caption" sx={{ fontSize: 10 }}>
-                                {titulo.nombreArchivo}
-                            </Typography>
-                        </Box>
-                        ) : (
-                        <Button
-                            variant="outlined"
-                            component="label"
-                            size="small"
-                            startIcon={<AttachFileIcon />}
-                            sx={{ fontSize: 10, p: 0.5 }}
-                        >
-                            Adjuntar
-                            <input
-                            type="file"
-                            accept=".pdf,.doc,.docx"
-                            hidden
-                            onChange={(e) => handleTituloDocumentoChange(index, e.target.files[0])}
-                            />
-                        </Button>
-                        )}
-                    </TableCell>
-                    <TableCell>
-                        <IconButton
-                        size="small"
-                        onClick={() => handleRemoveTitulo(index)}
-                        sx={{ color: 'red' }}
-                        >
-                        <DeleteIcon />
-                        </IconButton>
-                    </TableCell>
-                    </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <Button
-          startIcon={<AddIcon />}
-          onClick={handleAddTitulo}
-          sx={{ mb: 4, color: COLORS.primary }}
+      {/* Tabs para organizar el contenido */}
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: '#f5f5f5' }}>
+        <Tabs 
+          value={tabValue} 
+          onChange={(e, newValue) => setTabValue(newValue)}
+          sx={{
+            '& .MuiTab-root': { fontWeight: 600 },
+            '& .Mui-selected': { color: COLORS.primary }
+          }}
         >
-          Agregar Título
-        </Button>
+          <Tab label="📋 Datos Personales" />
+          <Tab label="🎓 Formación" />
+          <Tab label="📊 Historial" />
+          <Tab label="💬 Comentarios" />
+        </Tabs>
+      </Box>
 
-        <Divider sx={{ my: 2 }} />
+      <DialogContent sx={{ minHeight: '60vh', maxHeight: '70vh', overflowY: 'auto', p: 3 }}>
+        
+        {/* PESTAÑA 1: Datos Personales */}
+        {tabValue === 0 && (
+          <Box>
+            {/* Foto centrada y destacada */}
+            <Box sx={{ textAlign: 'center', mb: 4 }}>
+              <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 3 }}>
+                📷 Foto de Perfil
+              </Typography>
+              {formData.fotoId ? (
+                <Avatar
+                  src={`/api/fotos/voluntarios/${voluntarioId}/foto`}
+                  alt="Foto voluntario"
+                  sx={{ 
+                    width: 180, 
+                    height: 180, 
+                    margin: '0 auto 20px',
+                    border: `4px solid ${COLORS.primary}`,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                  }}
+                />
+              ) : (
+                <Avatar
+                  sx={{ 
+                    width: 180, 
+                    height: 180, 
+                    margin: '0 auto 20px',
+                    bgcolor: '#e0e0e0',
+                    color: '#999',
+                    fontSize: 60
+                  }}
+                >
+                  👤
+                </Avatar>
+              )}
+              <Button
+                variant="contained"
+                component="label"
+                sx={{ backgroundColor: COLORS.primary }}
+              >
+                Cambiar Foto
+                <input
+                  type="file"
+                  accept="image/*"
+                  hidden
+                  onChange={handleFotoChange}
+                />
+              </Button>
+            </Box>
 
-        {/* Cursos Aprobados */}
-        <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 2 }}>
-          📚 Cursos Aprobados
-        </Typography>
-        <TableContainer component={Paper} sx={{ mb: 2 }}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: COLORS.primary }}>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Nombre</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Entregado por</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Código</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Documento</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Acciones</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-                {formData['Cursos aprobados'].map((curso, index) => (
-                    <TableRow key={index}>
-                    <TableCell>
-                        <TextField
-                        size="small"
-                        value={curso.nombre || ''}
-                        onChange={(e) => handleCursoChange(index, 'nombre', e.target.value)}
-                        />
-                    </TableCell>
-                    <TableCell>
-                        <TextField
-                        size="small"
-                        value={curso.entregadoPor || ''}
-                        onChange={(e) => handleCursoChange(index, 'entregadoPor', e.target.value)}
-                        />
-                    </TableCell>
-                    <TableCell>
-                        <TextField
-                        size="small"
-                        value={curso.codigo || ''}
-                        onChange={(e) => handleCursoChange(index, 'codigo', e.target.value)}
-                        />
-                    </TableCell>
-                    <TableCell>
-                        {curso.documentoId ? (
-                            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+            <Divider sx={{ my: 3 }} />
+
+            {/* Datos Institucionales */}
+            <Paper elevation={2} sx={{ p: 3, mb: 3, bgcolor: '#fafafa' }}>
+              <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 3 }}>
+                🏢 Datos Institucionales
+              </Typography>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                    Comité Regional
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                    {voluntarioData?.['Comité regional'] || 'No asignado'}
+                  </Typography>
+                </Box>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
+                    Filial
+                  </Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 600 }}>
+                    {voluntarioData?.Filial || 'No asignado'}
+                  </Typography>
+                </Box>
+              </Box>
+            </Paper>
+            
+            {/* Datos de Salud */}
+            <Paper elevation={2} sx={{ p: 3, bgcolor: '#fafafa' }}>
+              <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 2 }}>
+                🏥 Información de Salud
+              </Typography>
+              <TextField
+                fullWidth
+                label="Alergias"
+                name="Alergia"
+                value={formData.Alergia}
+                onChange={handleChange}
+                multiline
+                rows={2}
+                sx={{ mb: 2 }}
+                placeholder="Ej: Penicilina, Polen, etc."
+              />
+              <TextField
+                fullWidth
+                label="Enfermedades"
+                name="Enfermedades"
+                value={formData.Enfermedades}
+                onChange={handleChange}
+                multiline
+                rows={2}
+                placeholder="Ej: Asma, Diabetes, etc."
+              />
+            </Paper>
+          </Box>
+        )}
+
+                {/* PESTAÑA 2: Formación */}
+        {tabValue === 1 && (
+          <Box>
+            {/* Títulos Aprobados */}
+            <Paper elevation={2} sx={{ p: 3, mb: 3, bgcolor: '#fafafa' }}>
+              <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 2 }}>
+                📜 Títulos Aprobados
+              </Typography>
+              {formData['Títulos aprobados'].length > 0 ? (
+                <TableContainer component={Paper} sx={{ mb: 2 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow sx={{ backgroundColor: COLORS.primary }}>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Título</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Entregado por</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Código</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Documento</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Acciones</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {formData['Títulos aprobados'].map((titulo, index) => (
+                        <TableRow key={index} hover>
+                          <TableCell>
+                            <TextField
+                              size="small"
+                              value={titulo.titulo || ''}
+                              onChange={(e) => handleTituloChange(index, 'titulo', e.target.value)}
+                              variant="standard"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              size="small"
+                              value={titulo.entregadoPor || ''}
+                              onChange={(e) => handleTituloChange(index, 'entregadoPor', e.target.value)}
+                              variant="standard"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              size="small"
+                              value={titulo.codigo || ''}
+                              onChange={(e) => handleTituloChange(index, 'codigo', e.target.value)}
+                              variant="standard"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            {titulo.documentoId ? (
+                              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
                                 <IconButton
-                                    size="small"
-                                    onClick={() => handleDescargarDocumento(curso.documentoId, curso.nombreArchivo)}
-                                    sx={{ color: COLORS.primary }}
+                                  size="small"
+                                  onClick={() => handleDescargarDocumento(titulo.documentoId, titulo.nombreArchivo)}
+                                  sx={{ color: COLORS.primary }}
                                 >
-                                    <DownloadIcon />
+                                  <DownloadIcon fontSize="small" />
                                 </IconButton>
                                 <Typography variant="caption" sx={{ fontSize: 10 }}>
-                                {curso.nombreArchivo}
+                                  {titulo.nombreArchivo}
                                 </Typography>
-                            </Box>
-                        ) : (
-                        <Button
-                            variant="outlined"
-                            component="label"
-                            size="small"
-                            startIcon={<AttachFileIcon />}
-                            sx={{ fontSize: 10, p: 0.5 }}
-                        >
-                            Adjuntar
-                            <input
-                            type="file"
-                            accept=".pdf,.doc,.docx"
-                            hidden
-                            onChange={(e) => handleCursoDocumentoChange(index, e.target.files[0])}
+                              </Box>
+                            ) : (
+                              <Button
+                                variant="outlined"
+                                component="label"
+                                size="small"
+                                startIcon={<AttachFileIcon />}
+                                sx={{ fontSize: 10, p: 0.5 }}
+                              >
+                                Adjuntar
+                                <input
+                                  type="file"
+                                  accept=".pdf,.doc,.docx"
+                                  hidden
+                                  onChange={(e) => handleTituloDocumentoChange(index, e.target.files[0])}
+                                />
+                              </Button>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleRemoveTitulo(index)}
+                              sx={{ color: 'red' }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                <Typography sx={{ color: '#999', fontStyle: 'italic', mb: 2 }}>
+                  Sin títulos registrados
+                </Typography>
+              )}
+              <Button
+                startIcon={<AddIcon />}
+                onClick={handleAddTitulo}
+                sx={{ color: COLORS.primary }}
+                variant="outlined"
+              >
+                Agregar Título
+              </Button>
+            </Paper>
+
+            {/* Cursos Aprobados */}
+            <Paper elevation={2} sx={{ p: 3, bgcolor: '#fafafa' }}>
+              <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 2 }}>
+                📚 Cursos Aprobados
+              </Typography>
+              {formData['Cursos aprobados'].length > 0 ? (
+                <TableContainer component={Paper} sx={{ mb: 2 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow sx={{ backgroundColor: COLORS.primary }}>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Nombre</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Entregado por</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Código</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Documento</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Acciones</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {formData['Cursos aprobados'].map((curso, index) => (
+                        <TableRow key={index} hover>
+                          <TableCell>
+                            <TextField
+                              size="small"
+                              value={curso.nombre || ''}
+                              onChange={(e) => handleCursoChange(index, 'nombre', e.target.value)}
+                              variant="standard"
                             />
-                        </Button>
-                        )}
-                    </TableCell>
-                    <TableCell>
-                        <IconButton
-                        size="small"
-                        onClick={() => handleRemoveCurso(index)}
-                        sx={{ color: 'red' }}
-                        >
-                        <DeleteIcon />
-                        </IconButton>
-                    </TableCell>
-                    </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <Button
-          startIcon={<AddIcon />}
-          onClick={handleAddCurso}
-          sx={{ mb: 4, color: COLORS.primary }}
-        >
-          Agregar Curso
-        </Button>
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              size="small"
+                              value={curso.entregadoPor || ''}
+                              onChange={(e) => handleCursoChange(index, 'entregadoPor', e.target.value)}
+                              variant="standard"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              size="small"
+                              value={curso.codigo || ''}
+                              onChange={(e) => handleCursoChange(index, 'codigo', e.target.value)}
+                              variant="standard"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            {curso.documentoId ? (
+                              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleDescargarDocumento(curso.documentoId, curso.nombreArchivo)}
+                                  sx={{ color: COLORS.primary }}
+                                >
+                                  <DownloadIcon fontSize="small" />
+                                </IconButton>
+                                <Typography variant="caption" sx={{ fontSize: 10 }}>
+                                  {curso.nombreArchivo}
+                                </Typography>
+                              </Box>
+                            ) : (
+                              <Button
+                                variant="outlined"
+                                component="label"
+                                size="small"
+                                startIcon={<AttachFileIcon />}
+                                sx={{ fontSize: 10, p: 0.5 }}
+                              >
+                                Adjuntar
+                                <input
+                                  type="file"
+                                  accept=".pdf,.doc,.docx"
+                                  hidden
+                                  onChange={(e) => handleCursoDocumentoChange(index, e.target.files[0])}
+                                />
+                              </Button>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleRemoveCurso(index)}
+                              sx={{ color: 'red' }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                <Typography sx={{ color: '#999', fontStyle: 'italic', mb: 2 }}>
+                  Sin cursos registrados
+                </Typography>
+              )}
+              <Button
+                startIcon={<AddIcon />}
+                onClick={handleAddCurso}
+                sx={{ color: COLORS.primary }}
+                variant="outlined"
+              >
+                Agregar Curso
+              </Button>
+            </Paper>
+          </Box>
+        )}
 
-        <Divider sx={{ my: 2 }} />
+                {/* PESTAÑA 3: Historial */}
+        {tabValue === 2 && (
+          <Box>
+            {/* Sanciones */}
+            <Paper elevation={2} sx={{ p: 3, mb: 3, bgcolor: '#fafafa' }}>
+              <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 2 }}>
+                ⚖️ Sanciones
+              </Typography>
+              {formData.Sanciones.length > 0 ? (
+                <TableContainer component={Paper} sx={{ mb: 2 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow sx={{ backgroundColor: COLORS.primary }}>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Tipo</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Fecha</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Resumen</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Acciones</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {formData.Sanciones.map((sancion, index) => (
+                        <TableRow key={index} hover>
+                          <TableCell>
+                            <TextField
+                              size="small"
+                              value={sancion.tipo || ''}
+                              onChange={(e) => handleSancionChange(index, 'tipo', e.target.value)}
+                              variant="standard"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              size="small"
+                              type="date"
+                              value={sancion.fecha || ''}
+                              onChange={(e) => handleSancionChange(index, 'fecha', e.target.value)}
+                              InputLabelProps={{ shrink: true }}
+                              variant="standard"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              size="small"
+                              value={sancion.resumen || ''}
+                              onChange={(e) => handleSancionChange(index, 'resumen', e.target.value)}
+                              variant="standard"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleRemoveSancion(index)}
+                              sx={{ color: 'red' }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                <Typography sx={{ color: '#999', fontStyle: 'italic', mb: 2 }}>
+                  Sin sanciones registradas
+                </Typography>
+              )}
+              <Button
+                startIcon={<AddIcon />}
+                onClick={handleAddSancion}
+                sx={{ color: COLORS.primary }}
+                variant="outlined"
+              >
+                Agregar Sanción
+              </Button>
+            </Paper>
 
-        {/* Sanciones */}
-        <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 2 }}>
-          ⚖️ Sanciones
-        </Typography>
-        <TableContainer component={Paper} sx={{ mb: 2 }}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: COLORS.primary }}>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Tipo</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Fecha</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Resumen</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Acciones</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {formData.Sanciones.map((sancion, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <TextField
-                      size="small"
-                      value={sancion.tipo || ''}
-                      onChange={(e) => handleSancionChange(index, 'tipo', e.target.value)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      size="small"
-                      type="date"
-                      value={sancion.fecha || ''}
-                      onChange={(e) => handleSancionChange(index, 'fecha', e.target.value)}
-                      InputLabelProps={{ shrink: true }}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      size="small"
-                      value={sancion.resumen || ''}
-                      onChange={(e) => handleSancionChange(index, 'resumen', e.target.value)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleRemoveSancion(index)}
-                      sx={{ color: 'red' }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <Button
-          startIcon={<AddIcon />}
-          onClick={handleAddSancion}
-          sx={{ mb: 4, color: COLORS.primary }}
-        >
-          Agregar Sanción
-        </Button>
+            {/* Reconocimiento Anual */}
+            <Paper elevation={2} sx={{ p: 3, bgcolor: '#fafafa' }}>
+              <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 2 }}>
+                🏆 Reconocimiento Anual
+              </Typography>
+              {formData['Reconocimiento anual'].length > 0 ? (
+                <TableContainer component={Paper} sx={{ mb: 2 }}>
+                  <Table size="small">
+                    <TableHead>
+                      <TableRow sx={{ backgroundColor: COLORS.primary }}>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Tipo</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Año</TableCell>
+                        <TableCell sx={{ color: '#fff', fontWeight: 700, fontSize: 12 }}>Acciones</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {formData['Reconocimiento anual'].map((rec, index) => (
+                        <TableRow key={index} hover>
+                          <TableCell>
+                            <TextField
+                              size="small"
+                              value={rec.tipo || ''}
+                              onChange={(e) => handleReconocimientoChange(index, 'tipo', e.target.value)}
+                              variant="standard"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <TextField
+                              size="small"
+                              type="number"
+                              value={rec.año || ''}
+                              onChange={(e) => handleReconocimientoChange(index, 'año', e.target.value)}
+                              variant="standard"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleRemoveReconocimiento(index)}
+                              sx={{ color: 'red' }}
+                            >
+                              <DeleteIcon fontSize="small" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              ) : (
+                <Typography sx={{ color: '#999', fontStyle: 'italic', mb: 2 }}>
+                  Sin reconocimientos registrados
+                </Typography>
+              )}
+              <Button
+                startIcon={<AddIcon />}
+                onClick={handleAddReconocimiento}
+                sx={{ color: COLORS.primary }}
+                variant="outlined"
+              >
+                Agregar Reconocimiento
+              </Button>
+            </Paper>
+          </Box>
+        )}
 
-        <Divider sx={{ my: 2 }} />
-
-        {/* Reconocimiento Anual */}
-        <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 2 }}>
-          🏆 Reconocimiento Anual
-        </Typography>
-        <TableContainer component={Paper} sx={{ mb: 2 }}>
-          <Table>
-            <TableHead>
-              <TableRow sx={{ backgroundColor: COLORS.primary }}>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Tipo</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Año</TableCell>
-                <TableCell sx={{ color: '#fff', fontWeight: 700 }}>Acciones</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {formData['Reconocimiento anual'].map((rec, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <TextField
-                      size="small"
-                      value={rec.tipo || ''}
-                      onChange={(e) => handleReconocimientoChange(index, 'tipo', e.target.value)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <TextField
-                      size="small"
-                      type="number"
-                      value={rec.año || ''}
-                      onChange={(e) => handleReconocimientoChange(index, 'año', e.target.value)}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleRemoveReconocimiento(index)}
-                      sx={{ color: 'red' }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <Button
-          startIcon={<AddIcon />}
-          onClick={handleAddReconocimiento}
-          sx={{ mb: 4, color: COLORS.primary }}
-        >
-          Agregar Reconocimiento
-        </Button>
-
-        <Divider sx={{ my: 2 }} />
-
-        {/* Comentarios */}
-        <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 2 }}>
-          📝 Comentarios
-        </Typography>
-        <TextField
-          fullWidth
-          label="Comentarios"
-          name="Comentarios"
-          value={formData.Comentarios}
-          onChange={handleChange}
-          multiline
-          rows={4}
-          sx={{ mb: 2 }}
-        />
+        {/* PESTAÑA 4: Comentarios */}
+        {tabValue === 3 && (
+          <Box>
+            <Paper elevation={2} sx={{ p: 3, bgcolor: '#fafafa' }}>
+              <Typography variant="h6" sx={{ color: COLORS.primary, fontWeight: 700, mb: 2 }}>
+                📝 Comentarios
+              </Typography>
+              <TextField
+                fullWidth
+                label="Comentarios"
+                name="Comentarios"
+                value={formData.Comentarios}
+                onChange={handleChange}
+                multiline
+                rows={8}
+                placeholder="Escribe aquí los comentarios sobre el desempeño del voluntario..."
+              />
+            </Paper>
+          </Box>
+        )}
 
       </DialogContent>
 
-      <DialogActions sx={{ p: 2 }}>
-        <Button onClick={onClose}>Cancelar</Button>
+      <DialogActions sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+        <Button onClick={onClose} sx={{ color: '#666' }}>
+          Cancelar
+        </Button>
         <Button
           variant="contained"
           onClick={handleSubmit}
           disabled={loading}
-          sx={{ backgroundColor: COLORS.primary }}
+          sx={{ 
+            backgroundColor: COLORS.primary,
+            '&:hover': { backgroundColor: COLORS.primaryDark }
+          }}
         >
           {loading ? <CircularProgress size={20} /> : 'Guardar Cambios'}
         </Button>
