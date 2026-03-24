@@ -37,20 +37,16 @@ async function getUserOrgUnitPath(userEmail) {
       userKey: userEmail
     });
 
-    console.log(`✅ OrgUnitPath para ${userEmail}: ${response.data.orgUnitPath}`);
     return response.data.orgUnitPath;
   } catch (error) {
-    console.error('❌ Error obteniendo orgUnitPath:', error.message);
+    console.error('❌ Error obteniendo orgUnitPath para', userEmail, ':', error.message);
     throw error;
   }
 }
 
 function determinarRol(orgUnitPath) {
-  console.log(`🔍 Determinando rol para orgUnitPath: ${orgUnitPath}`);
-  
   // Admin en la raíz
   if (orgUnitPath === '/') {
-    console.log('✅ Rol asignado: ADMIN');
     return {
       rol: 'admin',
       region: null,
@@ -60,11 +56,9 @@ function determinarRol(orgUnitPath) {
 
   const partes = orgUnitPath.split('/').filter(p => p);
 
-  console.log('📊 Partes del path:', partes);
-
   // Verificar que empiece con "Comites Regionales"
   if (partes.length < 2 || partes[0] !== 'Comites Regionales') {
-    console.log('⚠️ No pertenece a Comites Regionales');
+    console.warn('⚠️ OrgUnitPath no pertenece a Comites Regionales:', orgUnitPath);
     return null;
   }
 
@@ -73,7 +67,6 @@ function determinarRol(orgUnitPath) {
     const regionGoogleWorkspace = partes[1];
     const regionBD = MAPEO_REGIONES[regionGoogleWorkspace] || regionGoogleWorkspace;
     
-    console.log(`✅ Rol asignado: SEDE_REGIONAL - Región GW: ${regionGoogleWorkspace}, Región BD: ${regionBD}`);
     return {
       rol: 'sede_regional',
       region: regionBD,
@@ -86,7 +79,6 @@ function determinarRol(orgUnitPath) {
     const regionGoogleWorkspace = partes[1];
     const regionBD = MAPEO_REGIONES[regionGoogleWorkspace] || regionGoogleWorkspace;
     
-    console.log(`✅ Rol asignado: PRESIDENTE - Región GW: ${regionGoogleWorkspace}, Región BD: ${regionBD}, Filial: ${partes[2]}`);
     return {
       rol: 'presidente',
       region: regionBD,
@@ -94,7 +86,7 @@ function determinarRol(orgUnitPath) {
     };
   }
 
-  console.log('⚠️ No se pudo determinar rol para este orgUnitPath');
+  console.warn('⚠️ No se pudo determinar rol para orgUnitPath:', orgUnitPath);
   return null;
 }
 

@@ -11,26 +11,19 @@ router.get('/', isAuthenticated, async (req, res) => {
     // Obtener filtros según el rol del usuario
     const filtros = aplicarFiltrosRol(req);
     
-    console.log('📊 Filtros aplicados en filiales para', req.user.email, ':', filtros);
-    
     // Aplicar filtros a la consulta
     let query = {};
     if (filtros.filial) {
-      // Presidente: solo su filial
       query.Filial = filtros.filial;
     } else if (filtros.region) {
-      // Sede Regional: solo filiales de su región
       query['Sede regional'] = filtros.region;
     }
-    // Admin: sin filtros (query vacío = todas)
     
     const filiales = await db.collection('Datos filial').find(query).toArray();
     
-    console.log(`✅ Filiales retornadas: ${filiales.length}`);
-    
     res.json(filiales);
   } catch (error) {
-    console.error('Error obteniendo filiales:', error);
+    console.error('❌ Error obteniendo filiales:', error.message);
     res.status(500).json({ error: 'Error obteniendo filiales.' });
   }
 });
@@ -72,11 +65,11 @@ router.patch('/:id', isAuthenticated, async (req, res) => {
       return res.status(404).json({ error: 'Filial no encontrada' });
     }
     
-    console.log('✅ Comentario actualizado por', req.user.email, 'en filial:', filial.Filial);
+    console.log('✅ Comentario actualizado en filial:', filial.Filial, 'por', req.user.email);
     
     res.json({ mensaje: 'Comentario actualizado' });
   } catch (error) {
-    console.error('Error en PATCH /api/filiales/:id:', error);
+    console.error('❌ Error en PATCH /api/filiales/:id:', error.message);
     res.status(500).json({ error: 'Error actualizando filial: ' + error.message });
   }
 });

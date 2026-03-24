@@ -1,9 +1,5 @@
 /**
  * authFetch - Wrapper de fetch que agrega autenticación automáticamente
- * 
- * Uso: Igual que fetch() normal
- * authFetch('/api/voluntarios')
- * authFetch('/api/voluntarios', { method: 'POST', body: ... })
  */
 
 export async function authFetch(url, options = {}) {
@@ -29,14 +25,13 @@ export async function authFetch(url, options = {}) {
   
   // Manejar errores de autenticación
   if (response.status === 401) {
-    console.warn('⚠️ Token inválido o expirado. Redirigiendo a login...');
     sessionStorage.removeItem('token');
     window.location.href = '/login';
     throw new Error('No autenticado');
   }
   
   if (response.status === 403) {
-    console.warn('⚠️ Acceso denegado. Permisos insuficientes.');
+    console.warn('⚠️ Acceso denegado');
     throw new Error('Acceso denegado');
   }
   

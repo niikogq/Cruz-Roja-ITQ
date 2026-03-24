@@ -29,23 +29,16 @@ const LoadingFallback = () => (
   </Box>
 );
 
-
 // Componente para proteger rutas
 const ProtectedRoute = ({ children }) => {
   const token = sessionStorage.getItem('token');
   
-  console.log('🔐 ProtectedRoute - Token:', token);
-  console.log('🔐 ProtectedRoute - Tiene token?', !!token);
-  
   if (!token) {
-    console.log('❌ No hay token, redirigiendo a login...');
     return <Navigate to="/login" replace />;
   }
   
-  console.log('✅ Token válido, mostrando contenido');
   return children;
 };
-
 
 // Componente para manejar el callback de OAuth
 function OAuthHandler() {
@@ -57,10 +50,8 @@ function OAuthHandler() {
     const token = urlParams.get('token');
     
     if (token) {
-      console.log('✅ Token recibido del callback:', token);
       sessionStorage.setItem('token', token);
       
-      // Esperar un momento antes de navegar
       setTimeout(() => {
         navigate('/', { replace: true });
       }, 100);
@@ -69,7 +60,6 @@ function OAuthHandler() {
 
   return null;
 }
-
 
 function App() {
   return (
@@ -141,6 +131,5 @@ function App() {
     </Router>
   );
 }
-
 
 export default App;

@@ -17,7 +17,6 @@ router.post('/google', async (req, res) => {
     });
     
     const payload = ticket.getPayload();
-    console.log('📧 Usuario intentando login:', payload.email);
     
     if (!payload.email.endsWith('@cruzroja.cl')) {
       return res.status(403).json({
@@ -26,30 +25,22 @@ router.post('/google', async (req, res) => {
       });
     }
     
-    //Logs detallados
     let rolInfo = null;
     let orgUnitPath = null;
     
     try {
-      console.log('🔍 Obteniendo orgUnitPath para:', payload.email);
-      console.log('📝 ADMIN_EMAIL configurado:', process.env.ADMIN_EMAIL);
-      
       orgUnitPath = await getUserOrgUnitPath(payload.email);
-      console.log('✅ OrgUnitPath obtenido:', orgUnitPath);
-      
       rolInfo = determinarRol(orgUnitPath);
-      console.log('✅ Rol determinado:', rolInfo);
       
       if (!rolInfo) {
-        console.log('❌ No se pudo determinar rol');
+        console.error('❌ No se pudo determinar rol para:', payload.email);
         return res.status(403).json({
           success: false,
           message: 'Usuario sin rol asignado en la organización'
         });
       }
     } catch (error) {
-      console.error('❌ ERROR completo:', error);
-      console.error('Stack:', error.stack);
+      console.error('❌ Error verificando permisos:', error.message);
       return res.status(500).json({
         success: false,
         message: 'Error al verificar permisos del usuario: ' + error.message
@@ -70,11 +61,12 @@ router.post('/google', async (req, res) => {
         rol: rolInfo.rol,
         region: rolInfo.region,
         filial: rolInfo.filial,
-        orgUnitPath: orgUnitPath,
+        orgUnitPath: orgUnitPath, 
         fechaRegistro: new Date()
       };
       const result = await usuariosCollection.insertOne(nuevoUsuario);
       usuario = { ...nuevoUsuario, _id: result.insertedId };
+      console.log('✅ Nuevo usuario registrado:', payload.email, '- Rol:', rolInfo.rol);
     } else {
       await usuariosCollection.updateOne(
         { email: payload.email },
@@ -107,14 +99,13 @@ router.post('/google', async (req, res) => {
     });
     
   } catch (error) {
-    console.error('❌ Error general:', error);
+    console.error('❌ Error en autenticación:', error.message);
     res.status(401).json({
       success: false,
       message: 'Token inválido: ' + error.message
     });
   }
 });
-
 
 // Ruta para obtener información del usuario autenticado
 router.get('/me', async (req, res) => {
@@ -149,12 +140,12 @@ router.get('/me', async (req, res) => {
     });
 
   } catch (error) {
+    console.error('❌ Error en /auth/me:', error.message);
     res.status(500).json({ success: false, message: 'Error del servidor' });
   }
 });
 
-
-// Ruta para iniciar autenticación con Google (EXISTENTE)
+// Ruta para iniciar autenticación con Google
 router.get('/google',
   passport.authenticate('google', { 
     scope: ['profile', 'email'],
@@ -162,17 +153,16 @@ router.get('/google',
   })
 );
 
-// Callback de Google OAuth (EXISTENTE)
+// Callback de Google OAuth
 router.get('/google/callback',
   passport.authenticate('google', { failureRedirect: `${process.env.FRONTEND_URL}/login` }),
   (req, res) => {
     const userId = req.user.id;
-    console.log('✅ Callback exitoso, redirigiendo con token:', userId);
     res.redirect(`${process.env.FRONTEND_URL}/?token=${userId}`);
   }
 );
 
-// Logout (EXISTENTE)
+// Logout
 router.get('/logout', (req, res, next) => {
   req.logout((err) => {
     if (err) { return next(err); }

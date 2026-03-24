@@ -9,19 +9,14 @@ router.get('/', isAuthenticated, async (req, res) => {
 
     // Obtener filtros según el rol del usuario
     const filtros = aplicarFiltrosRol(req);
-    
-    console.log('📊 Filtros aplicados en filialesTotals para', req.user.email, ':', filtros);
 
     // Construir el $match según el rol
     let matchStage = {};
     if (filtros.filial) {
-      // Presidente: solo su filial
       matchStage.Filial = filtros.filial;
     } else if (filtros.region) {
-      // Sede Regional: solo filiales de su región
       matchStage['Sede regional'] = filtros.region;
     }
-    // Admin: sin filtros (matchStage vacío = todas)
 
     const pipeline = [];
     
@@ -71,11 +66,9 @@ router.get('/', isAuthenticated, async (req, res) => {
 
     const filialesAgregadas = await db.collection('Datos filial').aggregate(pipeline).toArray();
 
-    console.log(`✅ Filiales con totales retornadas: ${filialesAgregadas.length}`);
-
     res.json(filialesAgregadas);
   } catch (error) {
-    console.error('Error en /api/filialesTotals:', error);
+    console.error('❌ Error en /api/filialesTotals:', error.message);
     res.status(500).json({ error: 'Error obteniendo filiales con totales' });
   }
 });
